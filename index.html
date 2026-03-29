@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1e3a8a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CAREMA" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>CAREMA — Gestion Chantiers</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; }
+    #root { min-height: 100vh; }
+    @keyframes slideIn { from { transform: translateX(120px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    input, select, textarea, button { font-family: inherit; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// ─── DONNÉES INITIALES ───────────────────────────────────────────────────────
+var INIT_USERS = [
+  { id: 1, name: "Admin CAREMA", email: "admin@carema.mc", password: "admin123", role: "admin", avatar: "AC" },
+];
+var INIT_PRODUCTS = [
+  { id: 1, name: "Ciment Portland CEM II", unit: "sac 25kg", price: 8.5, stock: 120, minStock: 20, category: "Gros oeuvre" },
+  { id: 2, name: "Sable fin de riviere", unit: "m3", price: 45, stock: 35, minStock: 10, category: "Granulats" },
+  { id: 3, name: "Gravier 10/20", unit: "m3", price: 52, stock: 28, minStock: 8, category: "Granulats" },
+  { id: 4, name: "Parpaing 20x20x50", unit: "unite", price: 1.2, stock: 500, minStock: 100, category: "Maconnerie" },
+  { id: 5, name: "Ferraille HA 12", unit: "barre 6m", price: 14, stock: 80, minStock: 20, category: "Ferraillage" },
+];
+var INIT_CHANTIERS = [
+  { id: 1, name: "Residence Le Soleil", address: "12 Bd Princess Grace, Monaco", client: "SCI Monaco", status: "en_cours", budget: 850000, startDate: "2024-01-15", endDate: "2024-12-31" },
+  { id: 2, name: "Villa Azur", address: "8 Av de Grande Bretagne, Monaco", client: "M. Dupont", status: "en_cours", budget: 320000, startDate: "2024-03-01", endDate: "2024-09-30" },
+];
+// Commandes = bons d'achat fournisseur (besoins du chantier)
+var INIT_ORDERS = [
+  { id: 1, chantierId: "1", date: "2024-11-08", products: [{ productId: 1, qty: 100 }, { productId: 2, qty: 10 }], status: "recue", ref: "BC-2024-001", createdBy: "Admin CAREMA", notes: "Besoin urgent ciment" },
+];
+// Livraisons = bons de livraison CAREMA vers chantier
+var INIT_DELIVERIES = [
+  { id: 1, chantierId: "1", date: "2024-11-10", heure: "08:30", products: [{ productId: 1, qty: 50, unite: "sac 25kg" }, { productId: 2, qty: 5, unite: "m3" }], status: "livre", bon: "BL-2024-001", notes: "Livraison matinee", createdBy: "Admin CAREMA" },
+  { id: 2, chantierId: "2", date: "2024-11-12", heure: "", products: [{ productId: 4, qty: 200, unite: "unite" }], status: "livre", bon: "BL-2024-002", notes: "", createdBy: "Admin CAREMA" },
+];
+var INIT_DEVIS = [];
+
+var UNITS = ["unite", "palette", "m3", "m2", "ml", "kg", "tonne", "sac 25kg", "sac 50kg", "barre 6m", "litre", "bidon", "rouleau", "boite"];
+
+var ROLES = {
+  admin:        { label: "Administrateur",    color: "#1e3a8a", bg: "#dbeafe", icon: "👑" },
+  chauffeur:    { label: "Chauffeur",          color: "#0891b2", bg: "#cffafe", icon: "🚛" },
+  chef_chantier:{ label: "Chef de chantier",  color: "#059669", bg: "#d1fae5", icon: "🦺" },
+  user:         { label: "Utilisateur",        color: "#3b82f6", bg: "#eff6ff", icon: "👤" },
+};
+
+// Statuts commandes (bons d'achat fournisseur)
+// en_attente = soumis, en attente validation admin
+// validee    = admin a validé, commande passée au fournisseur
+// recue      = marchandises reçues à l'entrepôt (stock augmente)
+// annulee    = annulée
+
+// Statuts livraisons (bons de livraison chantier)
+// en_attente = créée, chauffeur pas encore parti
+// en_route   = chauffeur en route
+// livre      = livré et confirmé (stock diminue)
+// annule     = annulée
+
+var SC = {
+  en_cours: "#22c55e", termine: "#6b7280", suspendu: "#f59e0b",
+  brouillon: "#94a3b8", envoye: "#3b82f6", accepte: "#22c55e", refuse: "#ef4444",
+  en_attente: "#f59e0b", en_route: "#8b5cf6", livre: "#22c55e", annule: "#ef4444",
+  validee: "#3b82f6", recue: "#22c55e", annulee: "#ef4444",
+};
+var SL = {
+  en_cours: "En cours", termine: "Termine", suspendu: "Suspendu",
+  brouillon: "Brouillon", envoye: "Envoye", accepte: "Accepte", refuse: "Refuse",
+  en_attente: "En attente", en_route: "En route", livre: "Livre", annule: "Annule",
+  validee: "Validee", recue: "Recue en entrepot", annulee: "Annulee",
+};
+
+function uid() { return String(Date.now()) + Math.random().toString(36).slice(2); }
+function fmtD(d) { return d ? new Date(d).toLocaleDateString("fr-FR") : "-"; }
+function fmtE(n) { return Number(n || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }); }
+function gRef(pfx, list) { return pfx + "-" + new Date().getFullYear() + "-" + String(list.length + 1).padStart(3, "0"); }
+function findCh(chs, cid) { if (!cid) return null; return chs.find(function(c) { return String(c.id) === String(cid); }) || null; }
+function totalOf(prods, plist) {
+  return (prods || []).reduce(function(s, p) {
+    var pr = plist.find(function(x) { return String(x.id) === String(p.productId); });
+    return s + (pr ? pr.price * Number(p.qty) : 0);
+  }, 0);
+}
+function canCreateOrder(role) { return role === "admin" || role === "chef_chantier" || role === "user"; }
+function canCreateDelivery(role) { return role === "admin" || role === "chef_chantier"; }
+
+// ─── UI DE BASE ──────────────────────────────────────────────────────────────
+function Badge(props) {
+  var color = SC[props.status] || "#94a3b8";
+  return (
+    <span style={{ background: color + "22", color: color, border: "1px solid " + color + "44", borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
+      {SL[props.status] || props.status}
+    </span>
+  );
+}
+
+function Btn(props) {
+  var color = props.danger ? "#ef4444" : (props.color || "#1e3a8a");
+  var bg = props.outline ? "transparent" : color;
+  var tc = props.outline ? color : "#fff";
+  return (
+    <button onClick={props.onClick} disabled={props.disabled} style={Object.assign({ background: bg, border: "2px solid " + color, color: tc, padding: props.small ? "6px 14px" : "10px 20px", borderRadius: 10, cursor: props.disabled ? "default" : "pointer", fontWeight: 600, fontSize: props.small ? 12 : 14, opacity: props.disabled ? 0.5 : 1 }, props.style || {})}>
+      {props.children}
+    </button>
+  );
+}
+
+var IS = { width: "100%", padding: "10px 14px", border: "1.5px solid #e2e8f0", borderRadius: 10, fontSize: 14, outline: "none", boxSizing: "border-box", background: "#f8fafc" };
+
+function Inp(props) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {props.label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 5 }}>{props.label}</label>}
+      <input type={props.type || "text"} value={props.value} onChange={props.onChange} placeholder={props.placeholder} min={props.min} style={Object.assign({}, IS, props.style || {})} />
+    </div>
+  );
+}
+function Sel(props) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {props.label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 5 }}>{props.label}</label>}
+      <select value={props.value} onChange={props.onChange} style={Object.assign({}, IS, props.style || {})}>{props.children}</select>
+    </div>
+  );
+}
+function Txta(props) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {props.label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 5 }}>{props.label}</label>}
+      <textarea value={props.value} onChange={props.onChange} placeholder={props.placeholder} style={Object.assign({}, IS, { resize: "vertical", minHeight: 70 })} />
+    </div>
+  );
+}
+
+function Modal(props) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#00000080", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={props.onClose}>
+      <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 520, maxHeight: "92vh", overflow: "auto", boxShadow: "0 -8px 40px #00000030" }} onClick={function(e) { e.stopPropagation(); }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px 14px", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, background: "#fff", zIndex: 1 }}>
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#1e293b" }}>{props.title}</h2>
+          <button onClick={props.onClose} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", fontSize: 18, color: "#64748b", borderRadius: 8, width: 34, height: 34 }}>✕</button>
+        </div>
+        <div style={{ padding: "16px 20px 28px" }}>{props.children}</div>
+      </div>
+    </div>
+  );
+}
+
+function PrintModal(props) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 2000, display: "flex", flexDirection: "column" }}>
+      <div style={{ background: "#1e293b", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ color: "#fff", fontWeight: 700 }}>Apercu document</span>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={function() { var f = document.getElementById("pf"); if (f) f.contentWindow.print(); }} style={{ background: "#3b82f6", border: "none", color: "#fff", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontWeight: 700 }}>Imprimer / PDF</button>
+          <button onClick={props.onClose} style={{ background: "#ffffff22", border: "none", color: "#fff", borderRadius: 8, padding: "8px 14px", cursor: "pointer" }}>✕</button>
+        </div>
+      </div>
+      <iframe id="pf" srcDoc={props.html} style={{ flex: 1, border: "none" }} title="doc" />
+    </div>
+  );
+}
+
+function buildDocHtml(ref, subtitle, infoHtml, rowsHtml, totalsHtml) {
+  var css = "body{font-family:Georgia,serif;margin:32px;color:#222;font-size:13px}h1{color:#1e3a8a;margin:0}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1e3a8a;color:#fff;padding:9px 10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #e2e8f0;font-size:12px}.info{background:#f8fafc;padding:12px;border-radius:6px;margin:14px 0;font-size:12px}.total{text-align:right;margin-top:16px}.ttc{font-size:18px;font-weight:bold;color:#1e3a8a}.footer{margin-top:40px;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px}";
+  return "<!DOCTYPE html><html><head><meta charset='utf-8'><title>" + ref + "</title><style>" + css + "</style></head><body>"
+    + "<div style='display:flex;justify-content:space-between;margin-bottom:20px'>"
+    + "<div><h1>CAREMA</h1><p style='color:#64748b;font-size:11px'>Villa Le Dome - 4-6 rue des Lilas - 98000 Monaco</p></div>"
+    + "<div style='text-align:right'><h2 style='margin:0;color:#1e3a8a'>" + ref + "</h2><p style='margin:4px 0;color:#64748b;font-size:12px'>" + subtitle + "</p></div>"
+    + "</div>"
+    + infoHtml
+    + "<table><thead><tr><th>Designation</th><th style='text-align:center'>Quantite</th><th style='text-align:right'>Prix unit. HT</th><th style='text-align:right'>Total HT</th></tr></thead><tbody>" + rowsHtml + "</tbody></table>"
+    + totalsHtml
+    + "<div class='footer'>CAREMA - Document genere le " + new Date().toLocaleDateString("fr-FR") + "</div>"
+    + "</body></html>";
+}
+
+function findProd(plist, pid) {
+  var s = String(pid);
+  return plist.find(function(x) { return String(x.id) === s; }) || null;
+}
+function buildRows(products, plist) {
+  return (products || []).map(function(p) {
+    var pr = findProd(plist, p.productId);
+    var t = pr ? pr.price * Number(p.qty) : 0;
+    return "<tr><td>" + (pr ? pr.name : "Produit #" + p.productId) + "</td><td style='text-align:center'>" + p.qty + " " + (pr ? pr.unit : "") + "</td><td style='text-align:right'>" + (pr ? fmtE(pr.price) : "0,00 EUR") + "</td><td style='text-align:right'>" + fmtE(t) + "</td></tr>";
+  }).join("");
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+var NAVITEMS = [
+  { key: "dashboard",  label: "Tableau de bord", icon: "📊" },
+  { key: "chantiers",  label: "Chantiers",        icon: "🏗️" },
+  { key: "commandes",  label: "Commandes achat",  icon: "🛒" },
+  { key: "livraisons", label: "Livraisons",        icon: "🚚" },
+  { key: "devis",      label: "Devis",             icon: "📋" },
+  { key: "stock",      label: "Stock entrepot",   icon: "🏭" },
+  { key: "produits",   label: "Produits",          icon: "🧱" },
+  { key: "users",      label: "Utilisateurs",      icon: "👥", adminOnly: true },
+];
+
+function Sidebar(props) {
+  var role = ROLES[props.user.role] || ROLES.user;
+  return (
+    <div>
+      {props.open && <div onClick={props.onClose} style={{ position: "fixed", inset: 0, background: "#00000060", zIndex: 150 }} />}
+      <div style={{ width: 265, minHeight: "100vh", background: "linear-gradient(180deg,#0f172a 0%,#1e3a8a 100%)", display: "flex", flexDirection: "column", position: "fixed", top: 0, left: 0, zIndex: 200, transform: props.open ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.25s ease" }}>
+        <div style={{ padding: "18px 20px 12px", borderBottom: "1px solid #ffffff15", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ color: "#fff", fontWeight: 900, fontSize: 20, letterSpacing: 2 }}>CAREMA</div>
+          <button onClick={props.onClose} style={{ background: "#ffffff15", border: "none", color: "#fff", borderRadius: 8, cursor: "pointer", padding: "5px 10px", fontSize: 15 }}>✕</button>
+        </div>
+        <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
+          {NAVITEMS.filter(function(n) { return !n.adminOnly || props.user.role === "admin"; }).map(function(n) {
+            var active = props.page === n.key;
+            return (
+              <button key={n.key} onClick={function() { props.setPage(n.key); props.onClose(); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "12px 20px", border: "none", cursor: "pointer", textAlign: "left", background: active ? "#ffffff18" : "transparent", color: active ? "#fff" : "#94a3b8", borderLeft: active ? "3px solid #60a5fa" : "3px solid transparent", fontWeight: active ? 700 : 500, fontSize: 14 }}>
+                <span style={{ fontSize: 18 }}>{n.icon}</span>
+                {n.label}
+                {n.key === "commandes" && props.notifCount > 0 && <span style={{ marginLeft: "auto", background: "#ef4444", color: "#fff", borderRadius: 20, padding: "1px 8px", fontSize: 11 }}>{props.notifCount}</span>}
+              </button>
+            );
+          })}
+        </nav>
+        <div style={{ padding: "12px 20px", borderTop: "1px solid #ffffff15" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 38, height: 38, borderRadius: "50%", background: role.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13, flexShrink: 0 }}>{props.user.avatar}</div>
+            <div><div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>{props.user.name}</div><div style={{ color: "#94a3b8", fontSize: 11 }}>{role.icon} {role.label}</div></div>
+          </div>
+          <button onClick={props.onLogout} style={{ width: "100%", padding: "8px", background: "#ffffff10", border: "1px solid #ffffff20", color: "#94a3b8", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Deconnexion</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopBar(props) {
+  var titles = { dashboard: "Tableau de bord", chantiers: "Chantiers", commandes: "Commandes achat", livraisons: "Livraisons chantier", devis: "Devis", stock: "Stock entrepot", produits: "Produits", users: "Utilisateurs" };
+  return (
+    <div style={{ position: "sticky", top: 0, zIndex: 100, background: "#fff", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 14, padding: "0 16px", height: 54, boxShadow: "0 1px 8px #00000010" }}>
+      <button onClick={props.onMenuOpen} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+        <div style={{ width: 22, height: 2, background: "#1e3a8a", borderRadius: 2, marginBottom: 5 }} />
+        <div style={{ width: 22, height: 2, background: "#1e3a8a", borderRadius: 2, marginBottom: 5 }} />
+        <div style={{ width: 22, height: 2, background: "#1e3a8a", borderRadius: 2 }} />
+      </button>
+      <span style={{ fontWeight: 700, fontSize: 17, color: "#1e293b", flex: 1 }}>{titles[props.page] || props.page}</span>
+      {props.notifCount > 0 && <span style={{ background: "#ef4444", color: "#fff", borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>🔔 {props.notifCount}</span>}
+    </div>
+  );
+}
+
+function Toast(props) {
+  return (
+    <div style={{ position: "fixed", top: 16, right: 16, zIndex: 3000, display: "flex", flexDirection: "column", gap: 8 }}>
+      {props.items.map(function(n) {
+        var bg = n.type === "success" ? "#22c55e" : n.type === "warn" ? "#f59e0b" : "#3b82f6";
+        return (
+          <div key={n.id} style={{ background: bg, color: "#fff", borderRadius: 12, padding: "12px 16px", minWidth: 260, maxWidth: 340, boxShadow: "0 4px 20px #00000030", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <div style={{ flex: 1 }}><div style={{ fontWeight: 700, fontSize: 13 }}>{n.title}</div>{n.msg && <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>{n.msg}</div>}</div>
+            <button onClick={function() { props.onDismiss(n.id); }} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 16 }}>✕</button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function Dashboard(props) {
+  var low = props.products.filter(function(p) { return p.stock <= p.minStock; });
+  var pend = props.orders.filter(function(o) { return o.status === "en_attente"; });
+  function Card(cp) {
+    return (
+      <div onClick={cp.onClick} style={{ background: "#fff", borderRadius: 14, padding: "16px 18px", boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid " + cp.color, cursor: cp.onClick ? "pointer" : "default" }}>
+        <div style={{ fontSize: 26 }}>{cp.icon}</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", marginTop: 4 }}>{cp.value}</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>{cp.label}</div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1e293b", margin: "0 0 4px" }}>Bonjour !</h1>
+      <p style={{ color: "#64748b", margin: "0 0 20px", fontSize: 13 }}>{new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+        <Card icon="🏗️" label="Chantiers actifs"        value={props.chantiers.filter(function(c) { return c.status === "en_cours"; }).length} color="#3b82f6" onClick={function() { props.setPage("chantiers"); }} />
+        <Card icon="🛒" label="Commandes en attente"    value={pend.length}               color="#f59e0b" onClick={function() { props.setPage("commandes"); }} />
+        <Card icon="🚚" label="Livraisons chantier"     value={props.deliveries.length}   color="#22c55e" onClick={function() { props.setPage("livraisons"); }} />
+        <Card icon="⚠️" label="Alertes stock"           value={low.length}                color="#ef4444" onClick={function() { props.setPage("stock"); }} />
+      </div>
+      <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+        <div style={{ fontWeight: 700, color: "#1e3a8a", fontSize: 14, marginBottom: 8 }}>Comment ca fonctionne</div>
+        <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
+          <div>🛒 <strong>Commandes achat</strong> — Chef/Utilisateur commande des materiaux au fournisseur. Quand recus, le stock augmente.</div>
+          <div>🚚 <strong>Livraisons chantier</strong> — Admin/Chef envoie des materiaux de l entrepot vers le chantier. Quand confirme, le stock diminue.</div>
+        </div>
+      </div>
+      {low.length > 0 && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "12px 16px", marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, color: "#dc2626", fontSize: 14, marginBottom: 6 }}>⚠️ Stock bas</div>
+          {low.map(function(p) { return <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}><span>{p.name}</span><span style={{ fontWeight: 700, color: "#ef4444" }}>{p.stock} {p.unit}</span></div>; })}
+        </div>
+      )}
+      <div style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010" }}>
+        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>Dernieres commandes achat</div>
+        {props.orders.slice(-4).reverse().map(function(o) {
+          var ch = findCh(props.chantiers, o.chantierId);
+          return (
+            <div key={o.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+              <div><div style={{ fontWeight: 600, fontSize: 13 }}>{o.ref}</div><div style={{ fontSize: 12, color: "#64748b" }}>{ch ? ch.name : "—"}</div></div>
+              <Badge status={o.status} />
+            </div>
+          );
+        })}
+        {props.orders.length === 0 && <p style={{ color: "#94a3b8", fontSize: 13 }}>Aucune commande</p>}
+      </div>
+    </div>
+  );
+}
+
+// ─── CHANTIERS ───────────────────────────────────────────────────────────────
+function Chantiers(props) {
+  var [modal, setModal] = useState(null);
+  var [sel, setSel] = useState(null);
+  var [form, setForm] = useState({ name: "", address: "", client: "", status: "en_cours", budget: "", startDate: "", endDate: "" });
+  function ff(k, v) { setForm(function(p) { return Object.assign({}, p, { [k]: v }); }); }
+
+  function save() {
+    if (!form.name || !form.client) return;
+    if (modal === "new") {
+      props.setChantiers(function(p) { return p.concat([Object.assign({}, form, { id: uid(), budget: Number(form.budget) || 0 })]); });
+      props.addNotif("success", "Chantier cree", form.name);
+    } else {
+      props.setChantiers(function(p) { return p.map(function(c) { return c.id === form.id ? Object.assign({}, form, { budget: Number(form.budget) || 0 }) : c; }); });
+    }
+    setModal(null);
+  }
+
+  if (sel) {
+    var c = props.chantiers.find(function(x) { return String(x.id) === String(sel); }) || {};
+    var cDel = props.deliveries.filter(function(d) { return String(d.chantierId) === String(sel); });
+    var cOrd = props.orders.filter(function(o) { return String(o.chantierId) === String(sel); });
+
+    // Calcul dépenses : total commandes achat reçues
+    var totalAchats = cOrd.filter(function(o) { return o.status === "recue"; }).reduce(function(s, o) { return s + totalOf(o.products, props.products); }, 0);
+    // Calcul valeur livraisons confirmées
+    var totalLivraisons = cDel.filter(function(d) { return d.status === "livre"; }).reduce(function(s, d) {
+      return s + (d.products || []).reduce(function(ss, p) {
+        var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+        return ss + (pr ? pr.price * Number(p.qty) : 0);
+      }, 0);
+    }, 0);
+
+    return (
+      <div>
+        <button onClick={function() { setSel(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontWeight: 600, fontSize: 14, marginBottom: 16, padding: 0 }}>← Retour</button>
+        <div style={{ background: "linear-gradient(135deg,#1e3a8a,#3b82f6)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+            <div><div style={{ fontSize: 22, fontWeight: 800 }}>{c.name}</div><div style={{ opacity: 0.8, fontSize: 13, marginTop: 4 }}>{c.address}</div></div>
+            <Badge status={c.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Client</div><div style={{ fontWeight: 700 }}>{c.client}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Budget total</div><div style={{ fontWeight: 700 }}>{fmtE(c.budget)}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Achats recus</div><div style={{ fontWeight: 700 }}>{fmtE(totalAchats)}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Livraisons confirmees</div><div style={{ fontWeight: 700 }}>{fmtE(totalLivraisons)}</div></div>
+          </div>
+          {c.budget > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Budget consomme (achats)</div>
+              <div style={{ background: "#ffffff20", borderRadius: 6, height: 8, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: Math.min(100, (totalAchats / c.budget) * 100) + "%", background: totalAchats > c.budget ? "#ef4444" : "#4ade80", borderRadius: 6 }} />
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.8, marginTop: 3 }}>{Math.round((totalAchats / c.budget) * 100)}% utilise</div>
+            </div>
+          )}
+        </div>
+
+        {/* Commandes achat pour ce chantier */}
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>🛒 Commandes achat ({cOrd.length})</span>
+            <span style={{ fontSize: 13, color: "#64748b" }}>{fmtE(totalAchats)} reçu</span>
+          </div>
+          {cOrd.length === 0 && <div style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", padding: "10px 0" }}>Aucune commande</div>}
+          {cOrd.map(function(o) {
+            return (
+              <div key={o.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{o.ref}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(o.date)} · {o.createdBy}</div>
+                  {(o.products || []).map(function(p, i) {
+                    var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                    return pr ? <div key={i} style={{ fontSize: 12, color: "#374151", marginTop: 2 }}>• {pr.name} : {p.qty} {pr.unit}</div> : null;
+                  })}
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 10 }}>
+                  <Badge status={o.status} />
+                  <div style={{ fontWeight: 700, fontSize: 13, color: "#1e3a8a", marginTop: 4 }}>{fmtE(totalOf(o.products, props.products))}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Livraisons pour ce chantier */}
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>🚚 Livraisons chantier ({cDel.length})</span>
+            <span style={{ fontSize: 13, color: "#64748b" }}>{fmtE(totalLivraisons)} livré</span>
+          </div>
+          {cDel.length === 0 && <div style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", padding: "10px 0" }}>Aucune livraison</div>}
+          {cDel.map(function(d) {
+            return (
+              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{d.bon}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(d.date)}{d.heure ? " à " + d.heure : ""}</div>
+                  {(d.products || []).map(function(p, i) {
+                    var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                    return pr ? <div key={i} style={{ fontSize: 12, color: "#374151", marginTop: 2 }}>• {pr.name} : {p.qty} {p.unite || pr.unit}</div> : null;
+                  })}
+                  {d.confirmedBy && <div style={{ fontSize: 11, color: "#22c55e", marginTop: 2 }}>✅ Confirme par {d.confirmedBy}</div>}
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 10 }}>
+                  <Badge status={d.status} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <Btn onClick={function() { setForm(Object.assign({}, c, { budget: String(c.budget || "") })); setModal("edit"); }} outline style={{ flex: 1 }}>✏️ Modifier</Btn>
+          {props.user.role === "admin" && <Btn danger onClick={function() { if (confirm("Supprimer ?")) { props.setChantiers(function(p) { return p.filter(function(x) { return x.id !== c.id; }); }); setSel(null); } }} style={{ flex: 1 }}>🗑️ Supprimer</Btn>}
+        </div>
+        {modal === "edit" && (
+          <Modal title="Modifier chantier" onClose={function() { setModal(null); }}>
+            <Inp label="Nom *" value={form.name} onChange={function(e) { ff("name", e.target.value); }} />
+            <Inp label="Adresse" value={form.address} onChange={function(e) { ff("address", e.target.value); }} />
+            <Inp label="Client *" value={form.client} onChange={function(e) { ff("client", e.target.value); }} />
+            <Sel label="Statut" value={form.status} onChange={function(e) { ff("status", e.target.value); }}>
+              <option value="en_cours">En cours</option><option value="suspendu">Suspendu</option><option value="termine">Termine</option>
+            </Sel>
+            <Inp label="Budget (EUR)" type="number" value={form.budget} onChange={function(e) { ff("budget", e.target.value); }} />
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <Btn outline onClick={function() { setModal(null); }}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn>
+            </div>
+          </Modal>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Chantiers</h1>
+        <Btn onClick={function() { setForm({ name: "", address: "", client: "", status: "en_cours", budget: "", startDate: "", endDate: "" }); setModal("new"); }}>+ Nouveau</Btn>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {props.chantiers.map(function(c) {
+          return (
+            <div key={c.id} onClick={function() { setSel(c.id); }} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid " + (SC[c.status] || "#94a3b8"), cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><div style={{ fontWeight: 700, fontSize: 15 }}>{c.name}</div><Badge status={c.status} /></div>
+              <div style={{ fontSize: 13, color: "#64748b" }}>👤 {c.client}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>📍 {c.address}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f5f9" }}>
+                <span style={{ fontSize: 13, color: "#3b82f6", fontWeight: 600 }}>{fmtE(c.budget)}</span>
+                <span style={{ fontSize: 12, color: "#3b82f6" }}>Voir details →</span>
+              </div>
+            </div>
+          );
+        })}
+        {props.chantiers.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}><div style={{ fontSize: 48 }}>🏗️</div><p>Aucun chantier</p></div>}
+      </div>
+      {modal === "new" && (
+        <Modal title="Nouveau chantier" onClose={function() { setModal(null); }}>
+          <Inp label="Nom *" value={form.name} onChange={function(e) { ff("name", e.target.value); }} />
+          <Inp label="Adresse" value={form.address} onChange={function(e) { ff("address", e.target.value); }} />
+          <Inp label="Client *" value={form.client} onChange={function(e) { ff("client", e.target.value); }} />
+          <Sel label="Statut" value={form.status} onChange={function(e) { ff("status", e.target.value); }}>
+            <option value="en_cours">En cours</option><option value="suspendu">Suspendu</option><option value="termine">Termine</option>
+          </Sel>
+          <Inp label="Budget (EUR)" type="number" value={form.budget} onChange={function(e) { ff("budget", e.target.value); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(null); }}>Annuler</Btn><Btn onClick={save}>Creer</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── COMMANDES ACHAT (bons d'achat fournisseur) ──────────────────────────────
+function Commandes(props) {
+  var [modal, setModal] = useState(false);
+  var [sel, setSel] = useState(null);
+  var [prt, setPrt] = useState(null);
+  var [lines, setLines] = useState([{ productId: "", qty: 1 }]);
+  var [form, setForm] = useState({ chantierId: "", date: new Date().toISOString().split("T")[0], notes: "", fournisseur: "" });
+  var [filter, setFilter] = useState("all");
+  var canCreate = canCreateOrder(props.user.role);
+
+  function submit() {
+    if (!form.chantierId || lines.some(function(l) { return !l.productId; })) return;
+    var ref = gRef("BC", props.orders);
+    var o = { id: uid(), chantierId: form.chantierId, date: form.date, notes: form.notes, fournisseur: form.fournisseur, products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty) }; }), status: "en_attente", ref: ref, createdBy: props.user.name };
+    props.setOrders(function(p) { return p.concat([o]); });
+    props.addNotif("warn", "Nouvelle commande achat", ref + " par " + props.user.name);
+    props.setUnread(function(n) { return n + 1; });
+    setModal(false);
+    setLines([{ productId: "", qty: 1 }]);
+    setForm({ chantierId: "", date: new Date().toISOString().split("T")[0], notes: "", fournisseur: "" });
+  }
+
+  // Quand commande recue → stock augmente automatiquement
+  function marquerRecue(o) {
+    props.setProducts(function(plist) {
+      return plist.map(function(pr) {
+        var line = (o.products || []).find(function(l) { return Number(l.productId) === pr.id; });
+        return line ? Object.assign({}, pr, { stock: pr.stock + Number(line.qty) }) : pr;
+      });
+    });
+    props.setOrders(function(p) { return p.map(function(x) { return x.id === o.id ? Object.assign({}, x, { status: "recue", receivedAt: new Date().toLocaleString("fr-FR"), receivedBy: props.user.name }) : x; }); });
+    setSel(function(p) { return p ? Object.assign({}, p, { status: "recue", receivedAt: new Date().toLocaleString("fr-FR"), receivedBy: props.user.name }) : null; });
+    props.addNotif("success", "Marchandises recues !", "Stock mis a jour automatiquement pour " + o.ref);
+  }
+
+  function upSt(id, status) {
+    props.setOrders(function(p) { return p.map(function(x) { return x.id === id ? Object.assign({}, x, { status: status }) : x; }); });
+    setSel(function(p) { return p ? Object.assign({}, p, { status: status }) : null; });
+  }
+
+  var sorted = props.orders.slice().sort(function(a, b) { return b.id - a.id; });
+  var filtered = sorted.filter(function(o) { return filter === "all" || o.status === filter; });
+
+  if (prt) return <PrintModal html={prt} onClose={function() { setPrt(null); }} />;
+
+  if (sel) {
+    var o = props.orders.find(function(x) { return x.id === sel.id; }) || sel;
+    var ch = findCh(props.chantiers, o.chantierId);
+    var total = totalOf(o.products, props.products);
+    return (
+      <div>
+        <button onClick={function() { setSel(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontWeight: 600, fontSize: 14, marginBottom: 16, padding: 0 }}>← Retour</button>
+        <div style={{ background: "linear-gradient(135deg,#1e3a8a,#3b82f6)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <div><div style={{ fontSize: 11, opacity: 0.8 }}>Bon de commande achat</div><div style={{ fontSize: 22, fontWeight: 800 }}>{o.ref}</div></div>
+            <Badge status={o.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Chantier concerne</div><div style={{ fontWeight: 700 }}>{ch ? ch.name : "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Client</div><div style={{ fontWeight: 700 }}>{ch ? ch.client : "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Date commande</div><div style={{ fontWeight: 700 }}>{fmtD(o.date)}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Demande par</div><div style={{ fontWeight: 700 }}>{o.createdBy || "—"}</div></div>
+          </div>
+          {o.fournisseur && <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px", marginTop: 10 }}><div style={{ fontSize: 11, opacity: 0.7 }}>Fournisseur</div><div style={{ fontWeight: 700 }}>{o.fournisseur}</div></div>}
+        </div>
+
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Materiaux commandes</div>
+          {(o.products || []).map(function(p, i) {
+            var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+            return (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div><div style={{ fontWeight: 600, fontSize: 13 }}>{pr ? pr.name : "Produit #" + p.productId}</div><div style={{ fontSize: 12, color: "#64748b" }}>{pr ? pr.unit : ""}</div></div>
+                <div style={{ textAlign: "right" }}><div style={{ fontSize: 13 }}>{p.qty}{pr ? " x " + fmtE(pr.price) : ""}</div><div style={{ fontWeight: 700, color: "#1e3a8a" }}>{pr ? fmtE(pr.price * Number(p.qty)) : "0,00 EUR"}</div></div>
+              </div>
+            );
+          })}
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, paddingTop: 12, borderTop: "2px solid #e2e8f0" }}>
+            <span style={{ fontWeight: 800, fontSize: 15 }}>Total HT</span>
+            <span style={{ fontWeight: 800, fontSize: 18, color: "#1e3a8a" }}>{fmtE(total)}</span>
+          </div>
+          {o.notes && <div style={{ marginTop: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 12, color: "#64748b" }}>📝 {o.notes}</div>}
+        </div>
+
+        {o.status === "recue" && <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>✅ Recue le {o.receivedAt} par {o.receivedBy} — Stock mis a jour</div>}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
+          {props.user.role === "admin" && o.status === "en_attente" && (
+            <div>
+              <button onClick={function() { upSt(o.id, "validee"); props.addNotif("success", "Commande validee", o.ref); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", cursor: "pointer", background: "#3b82f6", color: "#fff", fontWeight: 700, fontSize: 15, marginBottom: 8 }}>✅ Valider la commande</button>
+              <button onClick={function() { upSt(o.id, "annulee"); setSel(null); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #ef4444", cursor: "pointer", background: "#fff", color: "#ef4444", fontWeight: 600 }}>❌ Annuler</button>
+            </div>
+          )}
+          {props.user.role === "admin" && o.status === "validee" && (
+            <button onClick={function() { marquerRecue(o); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", cursor: "pointer", background: "#22c55e", color: "#fff", fontWeight: 700, fontSize: 15 }}>📦 Marquer comme recue (stock +)</button>
+          )}
+        </div>
+
+        <button onClick={function() {
+          var ch2 = findCh(props.chantiers, o.chantierId);
+          var rows = buildRows(o.products, props.products);
+          var tot2 = totalOf(o.products, props.products);
+          var info = "<div class='info'><strong>Chantier :</strong> " + (ch2 ? ch2.name : "-") + "<br><strong>Client :</strong> " + (ch2 ? ch2.client : "-") + "<br><strong>Demande par :</strong> " + (o.createdBy || "-") + (o.fournisseur ? "<br><strong>Fournisseur :</strong> " + o.fournisseur : "") + (o.notes ? "<br><strong>Notes :</strong> " + o.notes : "") + "</div>";
+          var totals = "<div class='total'><div>Total HT : " + fmtE(tot2) + "</div></div>";
+          setPrt(buildDocHtml(o.ref, "Bon de commande achat - " + fmtD(o.date), info, rows, totals));
+        }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #1e3a8a", background: "#fff", color: "#1e3a8a", fontWeight: 600, cursor: "pointer" }}>🖨️ Apercu et Imprimer</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Commandes achat</h1>
+        {canCreate && <Btn onClick={function() { setModal(true); }}>+ Nouvelle</Btn>}
+      </div>
+      <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#92400e" }}>
+        🛒 Ces commandes sont les besoins en materiaux a acheter aupres des fournisseurs. Quand la commande est recue, le stock augmente automatiquement.
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+        {[["all","Toutes"],["en_attente","En attente"],["validee","Validees"],["recue","Recues"],["annulee","Annulees"]].map(function(arr) {
+          return <button key={arr[0]} onClick={function() { setFilter(arr[0]); }} style={{ padding: "6px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", background: filter === arr[0] ? "#1e3a8a" : "#f1f5f9", color: filter === arr[0] ? "#fff" : "#64748b" }}>{arr[1]}</button>;
+        })}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {filtered.map(function(o) {
+          var ch = findCh(props.chantiers, o.chantierId);
+          var tot = totalOf(o.products, props.products);
+          var sc = SC[o.status] || "#94a3b8";
+          return (
+            <div key={o.id} onClick={function() { setSel(o); }} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid " + sc, cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><div style={{ fontWeight: 800, fontSize: 15, color: "#1e3a8a" }}>{o.ref}</div><Badge status={o.status} /></div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>🏗️ {ch ? ch.name : "—"}</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>👤 Demande par {o.createdBy || "—"} · 📅 {fmtD(o.date)}</div>
+              {o.fournisseur && <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>🏪 {o.fournisseur}</div>}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: 8 }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>{(o.products || []).length} produit(s)</span>
+                <span style={{ fontWeight: 800, color: "#1e3a8a" }}>{fmtE(tot)} HT</span>
+              </div>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}><div style={{ fontSize: 48 }}>🛒</div><p>Aucune commande</p></div>}
+      </div>
+
+      {modal && (
+        <Modal title="Nouvelle commande achat" onClose={function() { setModal(false); }}>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#92400e" }}>Commande de materiaux aupres d un fournisseur. Quand recue, le stock augmente.</div>
+          <Sel label="Chantier concerne *" value={form.chantierId} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { chantierId: e.target.value }); }); }}>
+            <option value="">-- Choisir le chantier --</option>
+            {props.chantiers.map(function(c) { return <option key={c.id} value={String(c.id)}>{c.name} — {c.client}</option>; })}
+          </Sel>
+          <Inp label="Fournisseur" value={form.fournisseur} placeholder="Nom du fournisseur" onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { fournisseur: e.target.value }); }); }} />
+          <Inp label="Date" type="date" value={form.date} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { date: e.target.value }); }); }} />
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Materiaux a commander *</label>
+            {lines.map(function(l, i) {
+              return (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                  <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
+                    <option value="">-- Produit --</option>
+                    {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} ({p.unit}) - Stock: {p.stock}</option>; })}
+                  </select>
+                  <input type="number" min="1" value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 70 })} />
+                  <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "0 10px" }}>✕</button>
+                </div>
+              );
+            })}
+            <div style={{ textAlign: "right", fontWeight: 700, color: "#1e3a8a", margin: "6px 0" }}>
+              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return x.id === Number(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
+            </div>
+            <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1 }]); }); }}>+ Ajouter</Btn>
+          </div>
+          <Txta label="Notes / justification" value={form.notes} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn>
+            <Btn onClick={submit}>Envoyer la demande</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── LIVRAISONS (bons de livraison entrepôt → chantier) ──────────────────────
+function Livraisons(props) {
+  var [modal, setModal] = useState(false);
+  var [sel, setSel] = useState(null);
+  var [editM, setEditM] = useState(false);
+  var [editF, setEditF] = useState(null);
+  var [editL, setEditL] = useState([]);
+  var [lines, setLines] = useState([{ productId: "", qty: 1, unite: "palette" }]);
+  var [form, setForm] = useState({ chantierId: "", date: new Date().toISOString().split("T")[0], heure: "", notes: "" });
+  var [filt, setFilt] = useState("all");
+  var canCreate = canCreateDelivery(props.user.role);
+
+  function submit() {
+    if (!form.chantierId || lines.some(function(l) { return !l.productId; })) return;
+    var bon = gRef("BL", props.deliveries);
+    var d = { id: uid(), chantierId: form.chantierId, date: form.date, heure: form.heure, notes: form.notes, status: "en_attente", products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty), unite: l.unite }; }), bon: bon, createdBy: props.user.name };
+    props.setDeliveries(function(p) { return p.concat([d]); });
+    props.addNotif("success", "Bon de livraison cree", bon);
+    setModal(false);
+    setLines([{ productId: "", qty: 1, unite: "palette" }]);
+    setForm({ chantierId: "", date: new Date().toISOString().split("T")[0], heure: "", notes: "" });
+  }
+
+  // Quand livraison confirmee → stock diminue automatiquement
+  function confirmerLivraison(d) {
+    props.setProducts(function(plist) {
+      return plist.map(function(pr) {
+        var line = (d.products || []).find(function(l) { return Number(l.productId) === pr.id; });
+        return line ? Object.assign({}, pr, { stock: Math.max(0, pr.stock - Number(line.qty)) }) : pr;
+      });
+    });
+    props.setDeliveries(function(p) { return p.map(function(x) { return x.id === d.id ? Object.assign({}, x, { status: "livre", confirmedBy: props.user.name, confirmedAt: new Date().toLocaleString("fr-FR") }) : x; }); });
+    setSel(function(p) { return p ? Object.assign({}, p, { status: "livre", confirmedBy: props.user.name, confirmedAt: new Date().toLocaleString("fr-FR") }) : null; });
+    props.addNotif("success", "Livraison confirmee !", "Stock mis a jour automatiquement pour " + d.bon);
+  }
+
+  function upSt(id, status) {
+    props.setDeliveries(function(p) { return p.map(function(d) { return d.id === id ? Object.assign({}, d, { status: status }) : d; }); });
+    setSel(function(p) { return p ? Object.assign({}, p, { status: status }) : null; });
+  }
+
+  var sorted = props.deliveries.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+  var filtered = filt === "all" ? sorted : sorted.filter(function(d) { return d.status === filt; });
+
+  if (sel) {
+    var d = props.deliveries.find(function(x) { return x.id === sel.id; }) || sel;
+    var ch = findCh(props.chantiers, d.chantierId);
+    return (
+      <div>
+        <button onClick={function() { setSel(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontWeight: 600, fontSize: 14, marginBottom: 16, padding: 0 }}>← Retour</button>
+        <div style={{ background: "linear-gradient(135deg,#059669,#10b981)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <div><div style={{ fontSize: 11, opacity: 0.8 }}>Bon de livraison chantier</div><div style={{ fontSize: 22, fontWeight: 800 }}>{d.bon}</div></div>
+            <Badge status={d.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Chantier destinataire</div><div style={{ fontWeight: 700 }}>{ch ? ch.name : "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Client</div><div style={{ fontWeight: 700 }}>{ch ? ch.client : "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Date livraison</div><div style={{ fontWeight: 700 }}>{fmtD(d.date)}{d.heure ? " a " + d.heure : ""}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Prepare par</div><div style={{ fontWeight: 700 }}>{d.createdBy || "—"}</div></div>
+          </div>
+        </div>
+
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Materiaux livres</div>
+          {(d.products || []).length === 0 && <div style={{ fontSize: 13, color: "#94a3b8", textAlign: "center", padding: "10px 0" }}>Aucun produit enregistre</div>}
+          {(d.products || []).map(function(p, i) {
+            var pid = String(p.productId);
+            var pr = props.products.find(function(x) { return String(x.id) === pid; });
+            return (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{pr ? pr.name : "Produit #" + pid}</div>
+                  {pr && <div style={{ fontSize: 12, color: "#64748b" }}>{pr.category}</div>}
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontWeight: 700, color: "#059669", fontSize: 15 }}>{p.qty} {p.unite || (pr ? pr.unit : "")}</div>
+                  {pr && <div style={{ fontSize: 12, color: "#64748b" }}>{fmtE(pr.price * Number(p.qty))}</div>}
+                </div>
+              </div>
+            );
+          })}
+          {(d.products || []).length > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, paddingTop: 10, borderTop: "2px solid #e2e8f0" }}>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>Valeur totale</span>
+              <span style={{ fontWeight: 800, fontSize: 16, color: "#059669" }}>
+                {fmtE((d.products || []).reduce(function(s, p) {
+                  var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                  return s + (pr ? pr.price * Number(p.qty) : 0);
+                }, 0))}
+              </span>
+            </div>
+          )}
+          {d.notes && <div style={{ marginTop: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 12, color: "#64748b" }}>📝 {d.notes}</div>}
+        </div>
+
+        {d.confirmedBy && <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>✅ Confirme par <strong>{d.confirmedBy}</strong> le {d.confirmedAt} — Stock diminue automatiquement</div>}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
+          {d.status === "en_attente" && props.user.role === "admin" && (
+            <button onClick={function() { upSt(d.id, "en_route"); props.addNotif("success", "Chauffeur en route", d.bon); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", cursor: "pointer", background: "#8b5cf6", color: "#fff", fontWeight: 700, fontSize: 15 }}>🚚 Marquer en route</button>
+          )}
+          {(d.status === "en_attente" || d.status === "en_route") && (props.user.role === "chauffeur" || props.user.role === "chef_chantier" || props.user.role === "admin") && (
+            <button onClick={function() { confirmerLivraison(d); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", cursor: "pointer", background: "#22c55e", color: "#fff", fontWeight: 700, fontSize: 15 }}>✅ Confirmer livraison au chantier (stock -)</button>
+          )}
+          {d.status === "en_attente" && props.user.role === "admin" && (
+            <button onClick={function() { upSt(d.id, "annule"); setSel(null); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #ef4444", cursor: "pointer", background: "#fff", color: "#ef4444", fontWeight: 600 }}>❌ Annuler</button>
+          )}
+          {(d.status === "en_attente") && canCreate && (
+            <button onClick={function() { setEditF(Object.assign({}, d)); setEditL((d.products || []).map(function(p) { return { productId: String(p.productId), qty: p.qty, unite: p.unite || "palette" }; })); setEditM(true); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #1e3a8a", cursor: "pointer", background: "#fff", color: "#1e3a8a", fontWeight: 600 }}>✏️ Modifier</button>
+          )}
+          {props.user.role === "admin" && <button onClick={function() { if (confirm("Supprimer ?")) { props.setDeliveries(function(p) { return p.filter(function(x) { return x.id !== d.id; }); }); setSel(null); } }} style={{ width: "100%", padding: 10, borderRadius: 12, border: "none", cursor: "pointer", background: "#fef2f2", color: "#ef4444", fontWeight: 600 }}>🗑️ Supprimer</button>}
+        </div>
+
+        {editM && editF && (
+          <Modal title={"Modifier " + editF.bon} onClose={function() { setEditM(false); }}>
+            <Sel label="Chantier" value={editF.chantierId} onChange={function(e) { setEditF(function(p) { return Object.assign({}, p, { chantierId: e.target.value }); }); }}>
+              <option value="">-- Choisir --</option>
+              {props.chantiers.map(function(c) { return <option key={c.id} value={String(c.id)}>{c.name}</option>; })}
+            </Sel>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <Inp label="Date" type="date" value={editF.date} onChange={function(e) { setEditF(function(p) { return Object.assign({}, p, { date: e.target.value }); }); }} />
+              <Inp label="Heure" type="time" value={editF.heure || ""} onChange={function(e) { setEditF(function(p) { return Object.assign({}, p, { heure: e.target.value }); }); }} />
+            </div>
+            <Txta label="Notes" value={editF.notes || ""} onChange={function(e) { setEditF(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <Btn outline onClick={function() { setEditM(false); }}>Annuler</Btn>
+              <Btn onClick={function() {
+                var updated = Object.assign({}, editF, { products: editL.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty), unite: l.unite }; }) });
+                props.setDeliveries(function(p) { return p.map(function(x) { return x.id === updated.id ? updated : x; }); });
+                setSel(updated);
+                setEditM(false);
+                props.addNotif("success", "Livraison modifiee", updated.bon);
+              }}>Enregistrer</Btn>
+            </div>
+          </Modal>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Livraisons chantier</h1>
+        {canCreate && <Btn onClick={function() { setModal(true); }}>+ Nouvelle</Btn>}
+      </div>
+      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#166534" }}>
+        🚚 Livraisons de materiaux depuis l entrepot vers le chantier. Quand confirmee, le stock diminue automatiquement.
+      </div>
+      {!canCreate && <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#1d4ed8" }}>Vous pouvez confirmer les livraisons mais seuls Admin et Chef de chantier peuvent en creer.</div>}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+        {[["all","Toutes"],["en_attente","En attente"],["en_route","En route"],["livre","Livrees"],["annule","Annulees"]].map(function(arr) {
+          return <button key={arr[0]} onClick={function() { setFilt(arr[0]); }} style={{ padding: "6px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", background: filt === arr[0] ? "#059669" : "#f1f5f9", color: filt === arr[0] ? "#fff" : "#64748b" }}>{arr[1]}</button>;
+        })}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {filtered.map(function(d) {
+          var ch = findCh(props.chantiers, d.chantierId);
+          var sc = SC[d.status] || "#94a3b8";
+          return (
+            <div key={d.id} onClick={function() { setSel(d); }} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid " + sc, cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><div style={{ fontWeight: 800, fontSize: 15, color: "#059669" }}>{d.bon}</div><Badge status={d.status} /></div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>🏗️ {ch ? ch.name : "—"}</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>👤 {ch ? ch.client : "—"} · 📅 {fmtD(d.date)}{d.heure ? " a " + d.heure : ""}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8" }}>{(d.products || []).length} produit(s) · Prepare par {d.createdBy || "—"}</div>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}><div style={{ fontSize: 48 }}>🚚</div><p>Aucune livraison</p></div>}
+      </div>
+
+      {modal && (
+        <Modal title="Nouveau bon de livraison" onClose={function() { setModal(false); }}>
+          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#166534" }}>Envoi de materiaux de l entrepot vers le chantier. La confirmation diminuera le stock.</div>
+          <Sel label="Chantier destinataire *" value={form.chantierId} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { chantierId: e.target.value }); }); }}>
+            <option value="">-- Choisir --</option>
+            {props.chantiers.map(function(c) { return <option key={c.id} value={String(c.id)}>{c.name} — {c.client}</option>; })}
+          </Sel>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Inp label="Date" type="date" value={form.date} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { date: e.target.value }); }); }} />
+            <Inp label="Heure" type="time" value={form.heure} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { heure: e.target.value }); }); }} />
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Materiaux a livrer *</label>
+            {lines.map(function(l, i) {
+              var selProd = props.products.find(function(p) { return p.id === Number(l.productId); });
+              return (
+                <div key={i} style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                  <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
+                    <option value="">-- Produit --</option>
+                    {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} (Stock: {p.stock} {p.unit})</option>; })}
+                  </select>
+                  <input type="number" min="1" max={selProd ? selProd.stock : undefined} value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 60 })} />
+                  <select value={l.unite} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { unite: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 90 })}>
+                    {UNITS.map(function(u) { return <option key={u} value={u}>{u}</option>; })}
+                  </select>
+                  <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "0 10px" }}>✕</button>
+                </div>
+              );
+            })}
+            <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1, unite: "palette" }]); }); }}>+ Ajouter</Btn>
+          </div>
+          <Txta label="Notes" value={form.notes} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn>
+            <Btn onClick={submit}>Creer le bon</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── DEVIS ───────────────────────────────────────────────────────────────────
+function Devis(props) {
+  var [modal, setModal] = useState(false);
+  var [sel, setSel] = useState(null);
+  var [prt, setPrt] = useState(null);
+  var [lines, setLines] = useState([{ productId: "", qty: 1 }]);
+  var [form, setForm] = useState({ chantierId: "", date: new Date().toISOString().split("T")[0], client: "", validite: 30, notes: "" });
+
+  function calcTot(d) {
+    return (d.products || []).reduce(function(s, p) {
+      var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+      return s + (pr ? pr.price * Number(p.qty) : 0);
+    }, 0);
+  }
+
+  function submit() {
+    if (!form.client || lines.some(function(l) { return !l.productId; })) return;
+    var ref = gRef("DEV", props.devis);
+    var d = { id: uid(), chantierId: form.chantierId || null, date: form.date, client: form.client, validite: form.validite, notes: form.notes, products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty) }; }), status: "brouillon", ref: ref, createdBy: props.user.name };
+    props.setDevis(function(p) { return p.concat([d]); });
+    props.addNotif("success", "Devis cree", ref);
+    setModal(false);
+    setLines([{ productId: "", qty: 1 }]);
+    setForm({ chantierId: "", date: new Date().toISOString().split("T")[0], client: "", validite: 30, notes: "" });
+  }
+
+  function upSt(id, status) {
+    props.setDevis(function(p) { return p.map(function(d) { return d.id === id ? Object.assign({}, d, { status: status }) : d; }); });
+    setSel(function(p) { return p ? Object.assign({}, p, { status: status }) : null; });
+  }
+
+  if (prt) return <PrintModal html={prt} onClose={function() { setPrt(null); }} />;
+
+  if (sel) {
+    var d = props.devis.find(function(x) { return x.id === sel.id; }) || sel;
+    var ch = findCh(props.chantiers, d.chantierId);
+    var total = calcTot(d);
+    return (
+      <div>
+        <button onClick={function() { setSel(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontWeight: 600, fontSize: 14, marginBottom: 16, padding: 0 }}>← Retour</button>
+        <div style={{ background: "linear-gradient(135deg,#0f172a,#1e3a8a)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <div><div style={{ fontSize: 11, opacity: 0.8 }}>Devis</div><div style={{ fontSize: 22, fontWeight: 800 }}>{d.ref}</div></div>
+            <Badge status={d.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Client</div><div style={{ fontWeight: 700 }}>{d.client || "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Chantier</div><div style={{ fontWeight: 700 }}>{ch ? ch.name : "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Date</div><div style={{ fontWeight: 700 }}>{fmtD(d.date)}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Validite</div><div style={{ fontWeight: 700 }}>{d.validite} jours</div></div>
+          </div>
+        </div>
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Lignes du devis</div>
+          {(d.products || []).map(function(p, i) {
+            var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+            return (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div><div style={{ fontWeight: 600, fontSize: 13 }}>{pr ? pr.name : "Produit #" + p.productId}</div><div style={{ fontSize: 12, color: "#64748b" }}>{p.qty} {pr ? pr.unit : ""} {pr ? "x " + fmtE(pr.price) : ""}</div></div>
+                <div style={{ fontWeight: 700, color: "#1e3a8a" }}>{pr ? fmtE(pr.price * Number(p.qty)) : "0,00 EUR"}</div>
+              </div>
+            );
+          })}
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "2px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ color: "#64748b" }}>Total HT</span><span style={{ fontWeight: 700 }}>{fmtE(total)}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ color: "#64748b" }}>TVA 20%</span><span style={{ fontWeight: 700 }}>{fmtE(total * 0.2)}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #e2e8f0" }}><span style={{ fontWeight: 800, fontSize: 15 }}>Total TTC</span><span style={{ fontWeight: 800, fontSize: 18, color: "#1e3a8a" }}>{fmtE(total * 1.2)}</span></div>
+          </div>
+          {d.notes && <div style={{ marginTop: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 12, color: "#64748b" }}>📝 {d.notes}</div>}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
+          {d.status === "brouillon" && <button onClick={function() { upSt(d.id, "envoye"); props.addNotif("success", "Devis envoye", d.ref); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: "none", cursor: "pointer", background: "#3b82f6", color: "#fff", fontWeight: 700 }}>📤 Marquer comme envoye</button>}
+          {d.status === "envoye" && (
+            <div>
+              <button onClick={function() { upSt(d.id, "accepte"); props.addNotif("success", "Devis accepte !", d.ref); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: "none", cursor: "pointer", background: "#22c55e", color: "#fff", fontWeight: 700, marginBottom: 8 }}>✅ Accepte par le client</button>
+              <button onClick={function() { upSt(d.id, "refuse"); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #ef4444", cursor: "pointer", background: "#fff", color: "#ef4444", fontWeight: 600 }}>❌ Refuse par le client</button>
+            </div>
+          )}
+        </div>
+        <button onClick={function() {
+          var ch2 = findCh(props.chantiers, d.chantierId);
+          var rows = buildRows(d.products, props.products);
+          var tot2 = calcTot(d);
+          var info = "<div class='info'><strong>Client :</strong> " + d.client + (ch2 ? "<br><strong>Chantier :</strong> " + ch2.name + " — " + ch2.client : "") + "<br><strong>Cree par :</strong> " + (d.createdBy || "-") + (d.notes ? "<br><strong>Notes :</strong> " + d.notes : "") + "</div>";
+          var totals = "<div class='total'><div>Total HT : " + fmtE(tot2) + "</div><div>TVA 20% : " + fmtE(tot2 * 0.2) + "</div><div class='ttc'>Total TTC : " + fmtE(tot2 * 1.2) + "</div></div>";
+          setPrt(buildDocHtml(d.ref, "Devis - Validite " + d.validite + " jours - " + fmtD(d.date), info, rows, totals));
+        }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #1e3a8a", background: "#fff", color: "#1e3a8a", fontWeight: 600, cursor: "pointer", marginBottom: 10 }}>🖨️ Apercu et Imprimer</button>
+        {props.user.role === "admin" && <button onClick={function() { if (confirm("Supprimer ?")) { props.setDevis(function(p) { return p.filter(function(x) { return x.id !== d.id; }); }); setSel(null); } }} style={{ width: "100%", padding: 10, borderRadius: 12, border: "none", background: "#fef2f2", color: "#ef4444", fontWeight: 600, cursor: "pointer" }}>🗑️ Supprimer</button>}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Devis</h1>
+        <Btn onClick={function() { setModal(true); }}>+ Nouveau</Btn>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {props.devis.map(function(d) {
+          var ch = findCh(props.chantiers, d.chantierId);
+          var tot = calcTot(d);
+          return (
+            <div key={d.id} onClick={function() { setSel(d); }} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid " + (SC[d.status] || "#94a3b8"), cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><div style={{ fontWeight: 800, fontSize: 15, color: "#1e3a8a" }}>{d.ref}</div><Badge status={d.status} /></div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>👤 {d.client || "—"}</div>
+              {ch && <div style={{ fontSize: 12, color: "#64748b" }}>🏗️ {ch.name}</div>}
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 8, borderTop: "1px solid #f1f5f9" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(d.date)} · {d.validite}j</span>
+                <span style={{ fontWeight: 800, color: "#1e3a8a" }}>{fmtE(tot * 1.2)} TTC</span>
+              </div>
+            </div>
+          );
+        })}
+        {props.devis.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}><div style={{ fontSize: 48 }}>📋</div><p>Aucun devis</p></div>}
+      </div>
+      {modal && (
+        <Modal title="Nouveau devis" onClose={function() { setModal(false); }}>
+          <Inp label="Client *" value={form.client} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { client: e.target.value }); }); }} placeholder="Nom du client" />
+          <Sel label="Chantier" value={form.chantierId} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { chantierId: e.target.value }); }); }}>
+            <option value="">-- Sans chantier --</option>
+            {props.chantiers.map(function(c) { return <option key={c.id} value={String(c.id)}>{c.name} — {c.client}</option>; })}
+          </Sel>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Inp label="Date" type="date" value={form.date} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { date: e.target.value }); }); }} />
+            <Inp label="Validite (jours)" type="number" value={form.validite} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { validite: e.target.value }); }); }} />
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Produits *</label>
+            {lines.map(function(l, i) {
+              return (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                  <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
+                    <option value="">-- Produit --</option>
+                    {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} — {fmtE(p.price)}/{p.unit}</option>; })}
+                  </select>
+                  <input type="number" min="1" value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 70 })} />
+                  <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "0 10px" }}>✕</button>
+                </div>
+              );
+            })}
+            <div style={{ textAlign: "right", fontWeight: 700, color: "#1e3a8a", margin: "6px 0" }}>
+              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return x.id === Number(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
+            </div>
+            <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1 }]); }); }}>+ Ajouter</Btn>
+          </div>
+          <Txta label="Notes" value={form.notes} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn><Btn onClick={submit}>Creer</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── STOCK ───────────────────────────────────────────────────────────────────
+function Stock(props) {
+  var [modal, setModal] = useState(false);
+  var [adj, setAdj] = useState({ productId: "", qty: 1, unite: "palette", type: "entree", notes: "" });
+  var low = props.products.filter(function(p) { return p.stock <= p.minStock; });
+
+  function doAdj() {
+    if (!adj.productId || Number(adj.qty) <= 0) return;
+    props.setProducts(function(p) {
+      return p.map(function(x) {
+        if (x.id === Number(adj.productId)) {
+          var ns = adj.type === "entree" ? x.stock + Number(adj.qty) : Math.max(0, x.stock - Number(adj.qty));
+          return Object.assign({}, x, { stock: ns });
+        }
+        return x;
+      });
+    });
+    props.addNotif("success", "Stock ajuste manuellement", (adj.type === "entree" ? "+" : "-") + adj.qty + " " + adj.unite);
+    setModal(false);
+    setAdj({ productId: "", qty: 1, unite: "palette", type: "entree", notes: "" });
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Stock entrepot</h1>
+        {props.user.role === "admin" && <Btn onClick={function() { setModal(true); }}>Ajuster</Btn>}
+      </div>
+      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#64748b" }}>
+        Le stock augmente automatiquement quand une commande achat est marquee recue. Il diminue automatiquement quand une livraison chantier est confirmee.
+      </div>
+      {props.user.role !== "admin" && <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#1d4ed8" }}>Consultation uniquement — l administrateur peut ajuster manuellement si necessaire.</div>}
+      {low.length > 0 && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}><div style={{ fontWeight: 700, color: "#dc2626", fontSize: 13 }}>⚠️ {low.length} produit(s) en stock bas — pensez a passer une commande !</div>{low.map(function(p) { return <div key={p.id} style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>{p.name} : {p.stock} {p.unit} (min: {p.minStock})</div>; })}</div>}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {props.products.map(function(p) {
+          var isLow = p.stock <= p.minStock;
+          var pct = p.minStock > 0 ? Math.min(100, (p.stock / (p.minStock * 3)) * 100) : 100;
+          return (
+            <div key={p.id} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (isLow ? "#ef4444" : "#22c55e") }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div><div style={{ fontWeight: 700, fontSize: 14 }}>{p.name}</div><div style={{ fontSize: 12, color: "#64748b" }}>{p.category} · min. {p.minStock} {p.unit}</div></div>
+                <div style={{ textAlign: "right" }}><div style={{ fontWeight: 800, fontSize: 22, color: isLow ? "#ef4444" : "#22c55e" }}>{p.stock}</div><div style={{ fontSize: 11, color: "#94a3b8" }}>{p.unit}</div></div>
+              </div>
+              <div style={{ background: "#f1f5f9", borderRadius: 6, height: 6, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: pct + "%", background: isLow ? "#ef4444" : "#22c55e", borderRadius: 6, transition: "width 0.3s" }} />
+              </div>
+              {p.price && <div style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>Prix unitaire : {fmtE(p.price)}/{p.unit} · Valeur stock : {fmtE(p.stock * p.price)}</div>}
+            </div>
+          );
+        })}
+      </div>
+      {modal && (
+        <Modal title="Ajustement manuel stock" onClose={function() { setModal(false); }}>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#92400e" }}>Ajustement manuel — en principe le stock se gere automatiquement via les commandes et livraisons.</div>
+          <Sel label="Produit" value={adj.productId} onChange={function(e) { setAdj(function(p) { return Object.assign({}, p, { productId: e.target.value }); }); }}>
+            <option value="">-- Choisir --</option>
+            {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} (stock actuel: {p.stock} {p.unit})</option>; })}
+          </Sel>
+          <Sel label="Type d ajustement" value={adj.type} onChange={function(e) { setAdj(function(p) { return Object.assign({}, p, { type: e.target.value }); }); }}>
+            <option value="entree">+ Entree (inventaire, correction +)</option>
+            <option value="sortie">- Sortie (perte, casse, correction -)</option>
+          </Sel>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Inp label="Quantite" type="number" min="1" value={adj.qty} onChange={function(e) { setAdj(function(p) { return Object.assign({}, p, { qty: e.target.value }); }); }} />
+            <Sel label="Unite" value={adj.unite} onChange={function(e) { setAdj(function(p) { return Object.assign({}, p, { unite: e.target.value }); }); }}>
+              {UNITS.map(function(u) { return <option key={u} value={u}>{u}</option>; })}
+            </Sel>
+          </div>
+          <Txta label="Motif" value={adj.notes} placeholder="Raison de l ajustement..." onChange={function(e) { setAdj(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn><Btn onClick={doAdj}>Enregistrer</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── PRODUITS ────────────────────────────────────────────────────────────────
+function Produits(props) {
+  var [modal, setModal] = useState(null);
+  var [form, setForm] = useState({ name: "", category: "", unit: "palette", price: "", stock: "", minStock: "" });
+  var [search, setSearch] = useState("");
+
+  function save() {
+    if (!form.name) return;
+    if (modal === "new") {
+      props.setProducts(function(p) { return p.concat([Object.assign({}, form, { id: uid(), price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) })]); });
+      props.addNotif("success", "Produit ajoute", form.name);
+    } else {
+      props.setProducts(function(p) { return p.map(function(x) { return x.id === form.id ? Object.assign({}, form, { price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }) : x; }); });
+    }
+    setModal(null);
+  }
+
+  var filtered = props.products.filter(function(p) { return p.name.toLowerCase().indexOf(search.toLowerCase()) >= 0 || (p.category || "").toLowerCase().indexOf(search.toLowerCase()) >= 0; });
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Catalogue produits</h1>
+        <Btn onClick={function() { setForm({ name: "", category: "", unit: "palette", price: "", stock: "", minStock: "" }); setModal("new"); }}>+ Nouveau</Btn>
+      </div>
+      <input placeholder="Rechercher un produit..." value={search} onChange={function(e) { setSearch(e.target.value); }} style={Object.assign({}, IS, { marginBottom: 16 })} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {filtered.map(function(p) {
+          return (
+            <div key={p.id} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", boxShadow: "0 2px 8px #00000010", border: "1px solid #e2e8f0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{p.category} · {p.unit}</div>
+                  <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#1e3a8a" }}>{fmtE(p.price)}/{p.unit}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: p.stock <= p.minStock ? "#ef4444" : "#22c55e" }}>Stock: {p.stock}</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={function() { setForm(Object.assign({}, p, { price: String(p.price), stock: String(p.stock), minStock: String(p.minStock) })); setModal("edit"); }} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, cursor: "pointer", padding: "6px 10px" }}>✏️</button>
+                  {props.user.role === "admin" && <button onClick={function() { if (confirm("Supprimer " + p.name + " ?")) { props.setProducts(function(px) { return px.filter(function(x) { return x.id !== p.id; }); }); } }} style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, cursor: "pointer", padding: "6px 10px" }}>🗑️</button>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {modal && (
+        <Modal title={modal === "new" ? "Nouveau produit" : "Modifier produit"} onClose={function() { setModal(null); }}>
+          <Inp label="Nom *" value={form.name} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { name: e.target.value }); }); }} placeholder="Ex: Ciment Portland..." />
+          <Inp label="Categorie" value={form.category} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { category: e.target.value }); }); }} placeholder="Gros oeuvre, Granulats..." />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Sel label="Unite" value={form.unit} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { unit: e.target.value }); }); }}>
+              {UNITS.map(function(u) { return <option key={u} value={u}>{u}</option>; })}
+            </Sel>
+            <Inp label="Prix HT (EUR)" type="number" value={form.price} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { price: e.target.value }); }); }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Inp label="Stock initial" type="number" value={form.stock} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { stock: e.target.value }); }); }} />
+            <Inp label="Stock minimum" type="number" value={form.minStock} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { minStock: e.target.value }); }); }} />
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(null); }}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── UTILISATEURS ────────────────────────────────────────────────────────────
+function Users(props) {
+  var [modal, setModal] = useState(false);
+  var [form, setForm] = useState({ name: "", email: "", password: "", role: "user" });
+
+  function save() {
+    if (!form.name || !form.email || !form.password) return;
+    var initials = form.name.split(" ").map(function(n) { return n[0]; }).join("").toUpperCase().slice(0, 2);
+    props.setUsers(function(p) { return p.concat([Object.assign({}, form, { id: uid(), avatar: initials })]); });
+    props.addNotif("success", "Utilisateur cree", form.name);
+    setModal(false);
+    setForm({ name: "", email: "", password: "", role: "user" });
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Utilisateurs</h1>
+        <Btn onClick={function() { setModal(true); }}>+ Nouveau</Btn>
+      </div>
+      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#64748b" }}>
+        Commandes achat : Admin, Chef, Utilisateur · Livraisons chantier : Admin, Chef · Confirmation livraison : Admin, Chef, Chauffeur
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {props.users.map(function(u) {
+          var role = ROLES[u.role] || ROLES.user;
+          return (
+            <div key={u.id} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: role.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 16, flexShrink: 0 }}>{u.avatar}</div>
+                <div style={{ flex: 1 }}><div style={{ fontWeight: 700, fontSize: 14 }}>{u.name}</div><div style={{ fontSize: 12, color: "#64748b" }}>{u.email}</div></div>
+                <button onClick={function() { if (confirm("Supprimer " + u.name + " ?")) props.setUsers(function(p) { return p.filter(function(x) { return x.id !== u.id; }); }); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 18 }}>🗑️</button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {Object.entries(ROLES).map(function(entry) {
+                  var key = entry[0]; var r = entry[1];
+                  return (
+                    <button key={key} onClick={function() { props.setUsers(function(p) { return p.map(function(x) { return x.id === u.id ? Object.assign({}, x, { role: key }) : x; }); }); }} style={{ padding: "7px 10px", borderRadius: 8, border: "2px solid " + (u.role === key ? r.color : "#e2e8f0"), background: u.role === key ? r.bg : "#f8fafc", color: u.role === key ? r.color : "#64748b", cursor: "pointer", fontWeight: u.role === key ? 700 : 500, fontSize: 12, display: "flex", alignItems: "center", gap: 5 }}>
+                      {r.icon} {r.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {modal && (
+        <Modal title="Nouvel utilisateur" onClose={function() { setModal(false); }}>
+          <Inp label="Nom complet *" value={form.name} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { name: e.target.value }); }); }} placeholder="Jean Dupont" />
+          <Inp label="Email *" type="email" value={form.email} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { email: e.target.value }); }); }} />
+          <Inp label="Mot de passe *" type="password" value={form.password} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { password: e.target.value }); }); }} />
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 8 }}>Role</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {Object.entries(ROLES).map(function(entry) {
+                var key = entry[0]; var r = entry[1];
+                return (
+                  <button key={key} onClick={function() { setForm(function(p) { return Object.assign({}, p, { role: key }); }); }} style={{ padding: "10px", borderRadius: 10, border: "2px solid " + (form.role === key ? r.color : "#e2e8f0"), background: form.role === key ? r.bg : "#f8fafc", color: form.role === key ? r.color : "#64748b", cursor: "pointer", fontWeight: form.role === key ? 700 : 500, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>{r.icon}</span> {r.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn><Btn onClick={save}>Creer</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── LOGIN ───────────────────────────────────────────────────────────────────
+function Login(props) {
+  var [tab, setTab] = useState("login");
+  var [form, setForm] = useState({ email: "", password: "", name: "", role: "user" });
+  var [err, setErr] = useState("");
+
+  function login() {
+    var u = props.users.find(function(u) { return u.email === form.email && u.password === form.password; });
+    if (u) { setErr(""); props.onLogin(u); }
+    else setErr("Email ou mot de passe incorrect");
+  }
+
+  function register() {
+    if (!form.name || !form.email || !form.password) { setErr("Remplissez tous les champs"); return; }
+    if (props.users.find(function(u) { return u.email === form.email; })) { setErr("Email deja utilise"); return; }
+    var initials = form.name.split(" ").map(function(n) { return n[0]; }).join("").toUpperCase().slice(0, 2);
+    var u = { id: uid(), name: form.name, email: form.email, password: form.password, role: form.role, avatar: initials };
+    props.setUsers(function(p) { return p.concat([u]); });
+    props.onLogin(u);
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div style={{ background: "#fff", borderRadius: 20, padding: 28, width: "100%", maxWidth: 400, boxShadow: "0 20px 60px #00000050" }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ fontSize: 32, fontWeight: 900, color: "#1e3a8a", letterSpacing: 4, marginBottom: 4 }}>CAREMA</div>
+          <div style={{ fontSize: 12, color: "#94a3b8" }}>Villa Le Dome · 4-6 rue des Lilas · 98000 Monaco</div>
+          <div style={{ fontSize: 13, color: "#64748b", marginTop: 6, fontStyle: "italic" }}>Gestion des livraisons chantiers</div>
+        </div>
+        <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 10, padding: 4, marginBottom: 20 }}>
+          {["login", "register"].map(function(t) {
+            return (
+              <button key={t} onClick={function() { setTab(t); setErr(""); }} style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13, background: tab === t ? "#fff" : "transparent", color: tab === t ? "#1e3a8a" : "#64748b", boxShadow: tab === t ? "0 2px 8px #00000015" : "none" }}>
+                {t === "login" ? "Connexion" : "Inscription"}
+              </button>
+            );
+          })}
+        </div>
+        {tab === "register" && (
+          <div>
+            <Inp label="Nom complet" value={form.name} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { name: e.target.value }); }); }} placeholder="Jean Dupont" />
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Mon role</label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {Object.entries(ROLES).filter(function(e) { return e[0] !== "admin"; }).map(function(entry) {
+                  var key = entry[0]; var r = entry[1];
+                  return (
+                    <button key={key} onClick={function() { setForm(function(p) { return Object.assign({}, p, { role: key }); }); }} style={{ padding: "9px 8px", borderRadius: 10, border: "2px solid " + (form.role === key ? r.color : "#e2e8f0"), background: form.role === key ? r.bg : "#f8fafc", color: form.role === key ? r.color : "#64748b", cursor: "pointer", fontWeight: form.role === key ? 700 : 500, fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      {r.icon} {r.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+        <Inp label="Email" type="email" value={form.email} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { email: e.target.value }); }); }} placeholder="vous@exemple.com" />
+        <Inp label="Mot de passe" type="password" value={form.password} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { password: e.target.value }); }); }} placeholder="••••••••" />
+        {err && <div style={{ color: "#ef4444", fontSize: 13, margin: "-6px 0 12px", background: "#fef2f2", padding: "8px 12px", borderRadius: 8 }}>{err}</div>}
+        <Btn onClick={tab === "login" ? login : register} style={{ width: "100%" }}>
+          {tab === "login" ? "Se connecter" : "Creer mon compte"}
+        </Btn>
+        {tab === "login" && <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginTop: 14 }}>Demo : admin@carema.mc / admin123</p>}
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ─────────────────────────────────────────────────────────────────────
+function App() {
+  var [user, setUser] = useState(null);
+  var [page, setPage] = useState("dashboard");
+  var [menuOpen, setMenuOpen] = useState(false);
+  var [users, setUsers] = useState(INIT_USERS);
+  var [products, setProducts] = useState(INIT_PRODUCTS);
+  var [chantiers, setChantiers] = useState(INIT_CHANTIERS);
+  var [deliveries, setDeliveries] = useState(INIT_DELIVERIES);
+  var [orders, setOrders] = useState(INIT_ORDERS);
+  var [devis, setDevis] = useState(INIT_DEVIS);
+  var [toasts, setToasts] = useState([]);
+  var [unread, setUnread] = useState(0);
+
+  function addNotif(type, title, msg) {
+    var id = uid();
+    setToasts(function(p) { return p.concat([{ id: id, type: type, title: title, msg: msg }]); });
+    setTimeout(function() { setToasts(function(p) { return p.filter(function(t) { return t.id !== id; }); }); }, 5500);
+  }
+
+  function navigate(p) { setPage(p); if (p === "commandes") setUnread(0); }
+
+  if (!user) return <Login users={users} setUsers={setUsers} onLogin={function(u) { setUser(u); setPage("dashboard"); }} />;
+
+  var sharedProps = {
+    chantiers: chantiers, setChantiers: setChantiers,
+    deliveries: deliveries, setDeliveries: setDeliveries,
+    orders: orders, setOrders: setOrders,
+    devis: devis, setDevis: setDevis,
+    products: products, setProducts: setProducts,
+    users: users, setUsers: setUsers,
+    user: user, addNotif: addNotif, setUnread: setUnread,
+  };
+
+  return (
+    <div style={{ fontFamily: "'Segoe UI',system-ui,sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
+      <Sidebar page={page} setPage={navigate} user={user} notifCount={unread} onLogout={function() { setUser(null); }} open={menuOpen} onClose={function() { setMenuOpen(false); }} />
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <TopBar page={page} onMenuOpen={function() { setMenuOpen(true); }} notifCount={unread} />
+        <div style={{ flex: 1, padding: "18px 14px 40px" }}>
+          {page === "dashboard"  && <Dashboard {...sharedProps} setPage={navigate} />}
+          {page === "chantiers"  && <Chantiers {...sharedProps} />}
+          {page === "commandes"  && <Commandes {...sharedProps} />}
+          {page === "livraisons" && <Livraisons {...sharedProps} />}
+          {page === "devis"      && <Devis {...sharedProps} />}
+          {page === "stock"      && <Stock {...sharedProps} />}
+          {page === "produits"   && <Produits {...sharedProps} />}
+          {page === "users" && user.role === "admin" && <Users {...sharedProps} />}
+        </div>
+      </div>
+      <Toast items={toasts} onDismiss={function(id) { setToasts(function(p) { return p.filter(function(t) { return t.id !== id; }); }); }} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
+</body>
+</html>
