@@ -1460,10 +1460,7 @@ function Produits(props) {
         if (file.name.endsWith(".csv")) {
           reader.readAsText(file, "UTF-8");
         } else {
-          alert("Pour les fichiers Excel (.xlsx), veuillez d abord sauvegarder en CSV depuis Excel:
-Fichier > Enregistrer sous > CSV (point-virgule).
-
-Colonnes attendues: Nom | Categorie | Unite | Prix | Stock | Stock Min");
+          alert("Pour les fichiers Excel (.xlsx), veuillez dabord sauvegarder en CSV depuis Excel.\nFichier > Enregistrer sous > CSV (point-virgule).\nColonnes: Nom | Categorie | Unite | Prix | Stock | Stock Min");
         }
       }} />
       <input placeholder="Rechercher un produit..." value={search} onChange={function(e) { setSearch(e.target.value); }} style={Object.assign({}, IS, { marginBottom: 16 })} />
