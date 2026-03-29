@@ -19,6 +19,7 @@
     #splash p { color:#93c5fd;font-size:14px;margin-top:8px; }
     #splash .bar { width:200px;height:4px;background:#ffffff20;border-radius:4px;margin-top:30px;overflow:hidden; }
     #splash .fill { height:100%;width:0%;background:#60a5fa;border-radius:4px;transition:width 0.3s; }
+    #splash .errmsg { color:#fca5a5;font-size:12px;padding:16px;text-align:center;max-width:320px;margin-top:20px; }
     @keyframes slideIn { from { transform: translateX(120px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     input, select, textarea, button { font-family: inherit; }
   </style>
@@ -26,54 +27,53 @@
 <body>
 <div id="splash">
   <h1>CAREMA</h1>
-  <p>Chargement en cours...</p>
+  <p id="splashMsg">Chargement en cours...</p>
   <div class="bar"><div class="fill" id="bar"></div></div>
+  <div class="errmsg" id="errmsg" style="display:none"></div>
 </div>
 <div id="root"></div>
-
-<script>
-// Animate loading bar
-var bar = document.getElementById("bar");
-var pct = 0;
-var iv = setInterval(function() {
-  pct += 2;
-  bar.style.width = Math.min(pct, 90) + "%";
-  if (pct >= 90) clearInterval(iv);
-}, 80);
-</script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script>
-// Load Babel after React is ready
+var bar = document.getElementById("bar");
+var pct = 0;
+var iv = setInterval(function() { pct += 3; bar.style.width = Math.min(pct, 85) + "%"; if (pct >= 85) clearInterval(iv); }, 100);
+
 window.addEventListener("load", function() {
+  document.getElementById("splashMsg").textContent = "Compilation...";
   var s = document.createElement("script");
   s.src = "https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js";
   s.onload = function() {
-    bar.style.width = "95%";
-    // Now load and transform the app
-    var appScript = document.getElementById("app-code");
+    bar.style.width = "90%";
+    var code = document.getElementById("appcode").textContent;
     try {
-      var transformed = Babel.transform(appScript.textContent, {
-        presets: ["react"],
-        plugins: []
-      }).code;
+      var out = Babel.transform(code, { presets: [["react", {}]] }).code;
       bar.style.width = "100%";
       setTimeout(function() {
-        document.getElementById("splash").style.display = "none";
-        var fn = new Function(transformed);
-        fn();
-        ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-      }, 200);
+        try {
+          var fn = new Function("React", "ReactDOM", out + "\nreturn App;");
+          var App = fn(React, ReactDOM);
+          document.getElementById("splash").style.display = "none";
+          ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+        } catch(e2) {
+          document.getElementById("errmsg").style.display = "block";
+          document.getElementById("errmsg").textContent = "Erreur runtime: " + e2.message;
+        }
+      }, 100);
     } catch(e) {
-      document.getElementById("splash").innerHTML = "<div style=\"color:#ef4444;padding:20px;text-align:center\"><h2>Erreur</h2><pre style=\"font-size:11px;text-align:left;overflow:auto\">" + e.message + "</pre></div>";
+      document.getElementById("errmsg").style.display = "block";
+      document.getElementById("errmsg").textContent = "Erreur: " + e.message.substring(0, 200);
     }
+  };
+  s.onerror = function() {
+    document.getElementById("errmsg").style.display = "block";
+    document.getElementById("errmsg").textContent = "Impossible de charger Babel. Verifiez votre connexion internet.";
   };
   document.head.appendChild(s);
 });
+if ("serviceWorker" in navigator) { window.addEventListener("load", function() { navigator.serviceWorker.register("./sw.js"); }); }
 </script>
-
-<script id="app-code" type="text/plain">
+<script id="appcode" type="text/plain">
 const { useState, useEffect, useCallback, useRef } = React;
 
 // ─── DONNÉES INITIALES ───────────────────────────────────────────────────────
@@ -1426,9 +1426,7 @@ function Produits(props) {
         reader.onload = function(ev) {
           var text = ev.target.result;
           // Parse CSV
-          var lines = text.split(/
-?
-/).filter(function(l) { return l.trim(); });
+          var lines = text.replace(/\r/g, "").split("\n").filter(function(l) { return l.trim(); });
           if (lines.length < 2) { alert("Fichier vide ou format incorrect"); return; }
           // Detect separator
           var sep = lines[0].includes(";") ? ";" : ",";
@@ -1712,14 +1710,6 @@ function App() {
   );
 }
 
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function() {
-    navigator.serviceWorker.register("./sw.js");
-  });
-}
 </script>
 </body>
 </html>
