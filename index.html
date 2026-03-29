@@ -14,17 +14,67 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; }
     #root { min-height: 100vh; }
+    #splash { position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e3a8a);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999; }
+    #splash h1 { color:#fff;font-size:42px;font-weight:900;letter-spacing:4px;font-family:-apple-system,sans-serif; }
+    #splash p { color:#93c5fd;font-size:14px;margin-top:8px; }
+    #splash .bar { width:200px;height:4px;background:#ffffff20;border-radius:4px;margin-top:30px;overflow:hidden; }
+    #splash .fill { height:100%;width:0%;background:#60a5fa;border-radius:4px;transition:width 0.3s; }
     @keyframes slideIn { from { transform: translateX(120px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     input, select, textarea, button { font-family: inherit; }
   </style>
 </head>
 <body>
+<div id="splash">
+  <h1>CAREMA</h1>
+  <p>Chargement en cours...</p>
+  <div class="bar"><div class="fill" id="bar"></div></div>
+</div>
 <div id="root"></div>
+
+<script>
+// Animate loading bar
+var bar = document.getElementById("bar");
+var pct = 0;
+var iv = setInterval(function() {
+  pct += 2;
+  bar.style.width = Math.min(pct, 90) + "%";
+  if (pct >= 90) clearInterval(iv);
+}, 80);
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-<script type="text/babel">
-const { useState } = React;
+<script>
+// Load Babel after React is ready
+window.addEventListener("load", function() {
+  var s = document.createElement("script");
+  s.src = "https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js";
+  s.onload = function() {
+    bar.style.width = "95%";
+    // Now load and transform the app
+    var appScript = document.getElementById("app-code");
+    try {
+      var transformed = Babel.transform(appScript.textContent, {
+        presets: ["react"],
+        plugins: []
+      }).code;
+      bar.style.width = "100%";
+      setTimeout(function() {
+        document.getElementById("splash").style.display = "none";
+        var fn = new Function(transformed);
+        fn();
+        ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+      }, 200);
+    } catch(e) {
+      document.getElementById("splash").innerHTML = "<div style=\"color:#ef4444;padding:20px;text-align:center\"><h2>Erreur</h2><pre style=\"font-size:11px;text-align:left;overflow:auto\">" + e.message + "</pre></div>";
+    }
+  };
+  document.head.appendChild(s);
+});
+</script>
+
+<script id="app-code" type="text/plain">
+const { useState, useEffect, useCallback, useRef } = React;
 
 // ─── DONNÉES INITIALES ───────────────────────────────────────────────────────
 var INIT_USERS = [
@@ -1662,8 +1712,8 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function() {
