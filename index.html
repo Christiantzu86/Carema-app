@@ -520,7 +520,7 @@ function Commandes(props) {
   function submit() {
     if (!form.chantierId || lines.some(function(l) { return !l.productId; })) return;
     var ref = gRef("BC", props.orders);
-    var o = { id: uid(), chantierId: form.chantierId, date: form.date, notes: form.notes, fournisseur: form.fournisseur, products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty) }; }), status: "en_attente", ref: ref, createdBy: props.user.name };
+    var o = { id: uid(), chantierId: form.chantierId, date: form.date, notes: form.notes, fournisseur: form.fournisseur, products: lines.map(function(l) { return { productId: String(l.productId), qty: Number(l.qty) }; }), status: "en_attente", ref: ref, createdBy: props.user.name };
     props.setOrders(function(p) { return p.concat([o]); });
     props.addNotif("warn", "Nouvelle commande achat", ref + " par " + props.user.name);
     props.setUnread(function(n) { return n + 1; });
@@ -533,7 +533,7 @@ function Commandes(props) {
   function marquerRecue(o) {
     props.setProducts(function(plist) {
       return plist.map(function(pr) {
-        var line = (o.products || []).find(function(l) { return Number(l.productId) === pr.id; });
+        var line = (o.products || []).find(function(l) { return String(l.productId) === String(pr.id); });
         return line ? Object.assign({}, pr, { stock: pr.stock + Number(line.qty) }) : pr;
       });
     });
@@ -676,7 +676,7 @@ function Commandes(props) {
               );
             })}
             <div style={{ textAlign: "right", fontWeight: 700, color: "#1e3a8a", margin: "6px 0" }}>
-              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return x.id === Number(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
+              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return String(x.id) === String(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
             </div>
             <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1 }]); }); }}>+ Ajouter</Btn>
           </div>
@@ -706,7 +706,7 @@ function Livraisons(props) {
   function submit() {
     if (!form.chantierId || lines.some(function(l) { return !l.productId; })) return;
     var bon = gRef("BL", props.deliveries);
-    var d = { id: uid(), chantierId: form.chantierId, date: form.date, heure: form.heure, notes: form.notes, status: "en_attente", products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty), unite: l.unite }; }), bon: bon, createdBy: props.user.name };
+    var d = { id: uid(), chantierId: form.chantierId, date: form.date, heure: form.heure, notes: form.notes, status: "en_attente", products: lines.map(function(l) { return { productId: String(l.productId), qty: Number(l.qty), unite: l.unite }; }), bon: bon, createdBy: props.user.name };
     props.setDeliveries(function(p) { return p.concat([d]); });
     props.addNotif("success", "Bon de livraison cree", bon);
     setModal(false);
@@ -718,7 +718,7 @@ function Livraisons(props) {
   function confirmerLivraison(d) {
     props.setProducts(function(plist) {
       return plist.map(function(pr) {
-        var line = (d.products || []).find(function(l) { return Number(l.productId) === pr.id; });
+        var line = (d.products || []).find(function(l) { return String(l.productId) === String(pr.id); });
         return line ? Object.assign({}, pr, { stock: Math.max(0, pr.stock - Number(line.qty)) }) : pr;
       });
     });
@@ -819,7 +819,7 @@ function Livraisons(props) {
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
               <Btn outline onClick={function() { setEditM(false); }}>Annuler</Btn>
               <Btn onClick={function() {
-                var updated = Object.assign({}, editF, { products: editL.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty), unite: l.unite }; }) });
+                var updated = Object.assign({}, editF, { products: editL.map(function(l) { return { productId: String(l.productId), qty: Number(l.qty), unite: l.unite }; }) });
                 props.setDeliveries(function(p) { return p.map(function(x) { return x.id === updated.id ? updated : x; }); });
                 setSel(updated);
                 setEditM(false);
@@ -877,7 +877,7 @@ function Livraisons(props) {
           <div style={{ marginBottom: 14 }}>
             <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Materiaux a livrer *</label>
             {lines.map(function(l, i) {
-              var selProd = props.products.find(function(p) { return p.id === Number(l.productId); });
+              var selProd = props.products.find(function(p) { return String(p.id) === String(l.productId); });
               return (
                 <div key={i} style={{ display: "flex", gap: 6, marginBottom: 8 }}>
                   <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
@@ -923,7 +923,7 @@ function Devis(props) {
   function submit() {
     if (!form.client || lines.some(function(l) { return !l.productId; })) return;
     var ref = gRef("DEV", props.devis);
-    var d = { id: uid(), chantierId: form.chantierId || null, date: form.date, client: form.client, validite: form.validite, notes: form.notes, products: lines.map(function(l) { return { productId: Number(l.productId), qty: Number(l.qty) }; }), status: "brouillon", ref: ref, createdBy: props.user.name };
+    var d = { id: uid(), chantierId: form.chantierId || null, date: form.date, client: form.client, validite: form.validite, notes: form.notes, products: lines.map(function(l) { return { productId: String(l.productId), qty: Number(l.qty) }; }), status: "brouillon", ref: ref, createdBy: props.user.name };
     props.setDevis(function(p) { return p.concat([d]); });
     props.addNotif("success", "Devis cree", ref);
     setModal(false);
@@ -1047,7 +1047,7 @@ function Devis(props) {
               );
             })}
             <div style={{ textAlign: "right", fontWeight: 700, color: "#1e3a8a", margin: "6px 0" }}>
-              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return x.id === Number(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
+              Total HT : {fmtE(lines.reduce(function(s, l) { var p = props.products.find(function(x) { return String(x.id) === String(l.productId); }); return s + (p ? p.price * Number(l.qty) : 0); }, 0))}
             </div>
             <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1 }]); }); }}>+ Ajouter</Btn>
           </div>
@@ -1071,7 +1071,7 @@ function Stock(props) {
     if (!adj.productId || Number(adj.qty) <= 0) return;
     props.setProducts(function(p) {
       return p.map(function(x) {
-        if (x.id === Number(adj.productId)) {
+        if (String(x.id) === String(adj.productId)) {
           var ns = adj.type === "entree" ? x.stock + Number(adj.qty) : Math.max(0, x.stock - Number(adj.qty));
           return Object.assign({}, x, { stock: ns });
         }
