@@ -973,20 +973,20 @@ function Devis(props) {
   var [lines, setLines] = useState([{ productId: "", qty: 1 }]);
   var [form, setForm] = useState({ chantierId: "", date: new Date().toISOString().split("T")[0], client: "", validite: 30, notes: "" });
 
+  function getUnitPrice(p, pr) {
+    // Si customPrice est defini ET non vide ET > 0, on l utilise, sinon on prend le prix catalogue
+    var custom = p.customPrice;
+    if (custom !== undefined && custom !== "" && custom !== null && Number(custom) > 0) {
+      return Number(custom);
+    }
+    return pr ? Number(pr.price) : 0;
+  }
   function calcTot(d) {
     return (d.products || []).reduce(function(s, p) {
       var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
-      var basePrice = pr ? pr.price : 0;
-      var unitPrice = p.customPrice !== undefined ? Number(p.customPrice) : basePrice;
-      return s + (unitPrice * Number(p.qty));
-    }, 0);
-  }
-  function calcTotWithMargin(d, margin) {
-    return (d.products || []).reduce(function(s, p) {
-      var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
-      var basePrice = pr ? pr.price : 0;
-      var unitPrice = p.customPrice !== undefined ? Number(p.customPrice) : basePrice;
-      var finalPrice = unitPrice * (1 + Number(margin || 0) / 100);
+      var unitPrice = getUnitPrice(p, pr);
+      var margin = Number(d.margin || 0);
+      var finalPrice = unitPrice * (1 + margin / 100);
       return s + (finalPrice * Number(p.qty));
     }, 0);
   }
@@ -1032,8 +1032,7 @@ function Devis(props) {
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Lignes du devis</div>
           {(d.products || []).map(function(p, i) {
             var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
-            var basePrice = pr ? pr.price : 0;
-            var unitPrice = p.customPrice !== undefined ? Number(p.customPrice) : basePrice;
+            var unitPrice = getUnitPrice(p, pr);
             var margin = Number(d.margin || 0);
             var finalPrice = unitPrice * (1 + margin / 100);
             return (
@@ -1070,7 +1069,7 @@ function Devis(props) {
           var margin = Number(d.margin || 0);
           var rows = (d.products || []).map(function(p) {
             var pr = findProd(props.products, p.productId);
-            var up = p.customPrice !== undefined ? Number(p.customPrice) : (pr ? pr.price : 0);
+            var up = getUnitPrice(p, pr);
             var fp = up * (1 + margin / 100);
             var t = fp * Number(p.qty);
             return "<tr><td>" + (pr ? pr.name : "Produit #" + p.productId) + "</td><td style='text-align:center'>" + p.qty + " " + (pr ? pr.unit : "") + "</td><td style='text-align:right'>" + fmtE(fp) + (margin > 0 ? " (+" + margin + "%)" : "") + "</td><td style='text-align:right'>" + fmtE(t) + "</td></tr>";
@@ -1170,6 +1169,7 @@ function Devis(props) {
 function Historique(props) {
   var [section, setSection] = useState("commandes");
   var [prt, setPrt] = useState(null);
+  var [selItem, setSelItem] = useState(null);
 
   var secData = {
     commandes:  { label: "Commandes achat",  icon: "🛒", data: props.orders || [] },
@@ -1243,15 +1243,130 @@ function Historique(props) {
         })}
       </div>
 
+      {selItem && (
+        <Modal title="Detail" onClose={function() { setSelItem(null); }}>
+          {selItem._type === "commande" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontWeight: 800, fontSize: 18, color: "#1e3a8a" }}>{selItem.ref}</span>
+                <Badge status={selItem.status} />
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
+                <div><strong>Chantier :</strong> {(findCh(props.chantiers, selItem.chantierId) || {}).name || "—"}</div>
+                <div><strong>Demande par :</strong> {selItem.createdBy || "—"}</div>
+                <div><strong>Date :</strong> {fmtD(selItem.date)}</div>
+                {selItem.fournisseur && <div><strong>Fournisseur :</strong> {selItem.fournisseur}</div>}
+                {selItem.notes && <div><strong>Notes :</strong> {selItem.notes}</div>}
+              </div>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>Produits</div>
+              {(selItem.products || []).map(function(p, i) {
+                var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                return (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f1f5f9", fontSize: 13 }}>
+                    <span>{pr ? pr.name : "Produit #" + p.productId}</span>
+                    <span style={{ fontWeight: 600 }}>{p.qty} {pr ? pr.unit : ""}{canSeePrices(props.user.role) && pr ? " — " + fmtE(pr.price * p.qty) : ""}</span>
+                  </div>
+                );
+              })}
+              {canSeePrices(props.user.role) && <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, paddingTop: 10, borderTop: "2px solid #e2e8f0", fontWeight: 800, fontSize: 15 }}>
+                <span>Total HT</span><span style={{ color: "#1e3a8a" }}>{fmtE(totalOf(selItem.products, props.products))}</span>
+              </div>}
+            </div>
+          )}
+          {selItem._type === "livraison" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontWeight: 800, fontSize: 18, color: "#059669" }}>{selItem.bon}</span>
+                <Badge status={selItem.status} />
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
+                <div><strong>Chantier :</strong> {(findCh(props.chantiers, selItem.chantierId) || {}).name || "—"}</div>
+                <div><strong>Date :</strong> {fmtD(selItem.date)}{selItem.heure ? " à " + selItem.heure : ""}</div>
+                <div><strong>Prepare par :</strong> {selItem.createdBy || "—"}</div>
+                {selItem.confirmedBy && <div style={{ color: "#22c55e" }}><strong>Confirme par :</strong> {selItem.confirmedBy} — {selItem.confirmedAt}</div>}
+                {selItem.notes && <div><strong>Notes :</strong> {selItem.notes}</div>}
+              </div>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>Materiaux livres</div>
+              {(selItem.products || []).map(function(p, i) {
+                var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                return (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f1f5f9", fontSize: 13 }}>
+                    <span>{pr ? pr.name : "Produit #" + p.productId}</span>
+                    <span style={{ fontWeight: 600, color: "#059669" }}>{p.qty} {p.unite || (pr ? pr.unit : "")}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {selItem._type === "chantier" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontWeight: 800, fontSize: 18 }}>{selItem.name}</span>
+                <Badge status={selItem.status} />
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
+                <div><strong>Client :</strong> {selItem.client || "—"}</div>
+                <div><strong>Adresse :</strong> {selItem.address || "—"}</div>
+                {canSeePrices(props.user.role) && <div><strong>Budget :</strong> {fmtE(selItem.budget)}</div>}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div style={{ background: "#eff6ff", borderRadius: 10, padding: "10px 14px", textAlign: "center" }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#1e3a8a" }}>{(props.orders || []).filter(function(o) { return String(o.chantierId) === String(selItem.id); }).length}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>Commandes</div>
+                </div>
+                <div style={{ background: "#f0fdf4", borderRadius: 10, padding: "10px 14px", textAlign: "center" }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#059669" }}>{(props.deliveries || []).filter(function(d) { return String(d.chantierId) === String(selItem.id); }).length}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>Livraisons</div>
+                </div>
+              </div>
+            </div>
+          )}
+          {selItem._type === "devis" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontWeight: 800, fontSize: 18, color: "#1e3a8a" }}>{selItem.ref}</span>
+                <Badge status={selItem.status} />
+              </div>
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 13 }}>
+                <div><strong>Client :</strong> {selItem.client || "—"}</div>
+                <div><strong>Chantier :</strong> {(findCh(props.chantiers, selItem.chantierId) || {}).name || "—"}</div>
+                <div><strong>Date :</strong> {fmtD(selItem.date)} · Validite {selItem.validite} jours</div>
+                {selItem.margin > 0 && <div><strong>Marge :</strong> {selItem.margin}%</div>}
+              </div>
+              {(selItem.products || []).map(function(p, i) {
+                var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
+                var up = getUnitPrice(p, pr);
+                var fp = up * (1 + Number(selItem.margin || 0) / 100);
+                return (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f1f5f9", fontSize: 13 }}>
+                    <span>{pr ? pr.name : "Produit #" + p.productId}</span>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 600 }}>{p.qty} {pr ? pr.unit : ""}</div>
+                      <div style={{ fontSize: 12, color: "#1e3a8a" }}>{fmtE(fp * p.qty)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ marginTop: 12, paddingTop: 10, borderTop: "2px solid #e2e8f0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 13 }}><span>Total HT</span><span style={{ fontWeight: 700 }}>{fmtE(totalOf(selItem.products, props.products))}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 13 }}><span>TVA 20%</span><span style={{ fontWeight: 700 }}>{fmtE(totalOf(selItem.products, props.products) * 0.2)}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 800 }}><span>Total TTC</span><span style={{ color: "#1e3a8a" }}>{fmtE(totalOf(selItem.products, props.products) * 1.2)}</span></div>
+              </div>
+            </div>
+          )}
+        </Modal>
+      )}
+
       {section === "commandes" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {activeData.map(function(o) {
             var ch = findCh(props.chantiers, o.chantierId);
             return (
-              <div key={o.id} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[o.status] || "#94a3b8") }}>
+              <div key={o.id} onClick={function() { setSelItem(Object.assign({}, o, { _type: "commande" })); }} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[o.status] || "#94a3b8"), cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontWeight: 700, fontSize: 14, color: "#1e3a8a" }}>{o.ref}</span><Badge status={o.status} /></div>
                 <div style={{ fontSize: 13 }}>🏗️ {ch ? ch.name : "—"} · 👤 {o.createdBy || "—"}</div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(o.date)} · {(o.products || []).length} produit(s){canSeePrices(props.user.role) ? " · " + fmtE(totalOf(o.products, props.products)) + " HT" : ""}</div>
+                <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 4 }}>Voir details →</div>
               </div>
             );
           })}
@@ -1264,11 +1379,12 @@ function Historique(props) {
           {activeData.map(function(d) {
             var ch = findCh(props.chantiers, d.chantierId);
             return (
-              <div key={d.id} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[d.status] || "#94a3b8") }}>
+              <div key={d.id} onClick={function() { setSelItem(Object.assign({}, d, { _type: "livraison" })); }} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[d.status] || "#94a3b8"), cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontWeight: 700, fontSize: 14, color: "#059669" }}>{d.bon}</span><Badge status={d.status} /></div>
                 <div style={{ fontSize: 13 }}>🏗️ {ch ? ch.name : "—"} · 🚛 {d.createdBy || "—"}</div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(d.date)}{d.heure ? " à " + d.heure : ""} · {(d.products || []).length} produit(s)</div>
-                {d.confirmedBy && <div style={{ fontSize: 11, color: "#22c55e", marginTop: 2 }}>✅ {d.confirmedBy} · {d.confirmedAt}</div>}
+                <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(d.date)}{d.heure ? " a " + d.heure : ""} · {(d.products || []).length} produit(s)</div>
+                {d.confirmedBy && <div style={{ fontSize: 11, color: "#22c55e", marginTop: 2 }}>✅ {d.confirmedBy}</div>}
+                <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 4 }}>Voir details →</div>
               </div>
             );
           })}
@@ -1282,10 +1398,11 @@ function Historique(props) {
             var nbOrd = (props.orders || []).filter(function(o) { return String(o.chantierId) === String(c.id); }).length;
             var nbLiv = (props.deliveries || []).filter(function(d) { return String(d.chantierId) === String(c.id); }).length;
             return (
-              <div key={c.id} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[c.status] || "#94a3b8") }}>
+              <div key={c.id} onClick={function() { setSelItem(Object.assign({}, c, { _type: "chantier" })); }} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[c.status] || "#94a3b8"), cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</span><Badge status={c.status} /></div>
                 <div style={{ fontSize: 13 }}>👤 {c.client || "—"} · 📍 {c.address || "—"}</div>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>🛒 {nbOrd} commande(s) · 🚚 {nbLiv} livraison(s){canSeePrices(props.user.role) ? " · Budget: " + fmtE(c.budget) : ""}</div>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>🛒 {nbOrd} commande(s) · 🚚 {nbLiv} livraison(s){canSeePrices(props.user.role) ? " · " + fmtE(c.budget) : ""}</div>
+                <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 4 }}>Voir details →</div>
               </div>
             );
           })}
@@ -1299,10 +1416,11 @@ function Historique(props) {
             var ch = findCh(props.chantiers, d.chantierId);
             var tot = totalOf(d.products, props.products);
             return (
-              <div key={d.id} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[d.status] || "#94a3b8") }}>
+              <div key={d.id} onClick={function() { setSelItem(Object.assign({}, d, { _type: "devis" })); }} style={{ background: "#fff", borderRadius: 12, padding: "12px 16px", boxShadow: "0 2px 8px #00000010", borderLeft: "4px solid " + (SC[d.status] || "#94a3b8"), cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontWeight: 700, fontSize: 14, color: "#1e3a8a" }}>{d.ref}</span><Badge status={d.status} /></div>
                 <div style={{ fontSize: 13 }}>👤 {d.client || "—"}{ch ? " · 🏗️ " + ch.name : ""}</div>
                 <div style={{ fontSize: 12, color: "#64748b" }}>📅 {fmtD(d.date)} · {d.validite}j · {fmtE(tot)} HT · {fmtE(tot * 1.2)} TTC</div>
+                <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 4 }}>Voir details →</div>
               </div>
             );
           })}
