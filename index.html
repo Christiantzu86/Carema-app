@@ -957,12 +957,7 @@ function Dashboard(props) {
           <div>🚚 <strong>Livraisons chantier</strong> — Admin/Chef envoie des materiaux de l entrepot vers le chantier. Quand confirme, le stock diminue.</div>
         </div>
       </div>
-      {low.length > 0 && (
-        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "12px 16px", marginBottom: 16 }}>
-          <div style={{ fontWeight: 700, color: "#dc2626", fontSize: 14, marginBottom: 6 }}>⚠️ Stock bas</div>
-          {low.map(function(p) { return <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}><span>{p.name}</span><span style={{ fontWeight: 700, color: "#ef4444" }}>{p.stock} {p.unit}</span></div>; })}
-        </div>
-      )}
+
       <div style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010" }}>
         <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>Dernieres commandes achat</div>
         {props.orders.slice(-4).reverse().map(function(o) {
