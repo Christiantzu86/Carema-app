@@ -725,11 +725,13 @@ function Commandes(props) {
             <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Materiaux a commander *</label>
             {lines.map(function(l, i) {
               return (
-                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                  <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
-                    <option value="">-- Produit --</option>
-                    {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} ({p.unit}) - Stock: {p.stock}</option>; })}
-                  </select>
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                  <ProductSearch
+                    products={props.products}
+                    value={l.productId}
+                    onChange={function(v) { setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }}
+                    placeholder="Rechercher..."
+                  />
                   <input type="number" min="1" value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 70 })} />
                   <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "0 10px" }}>✕</button>
                 </div>
@@ -940,10 +942,12 @@ function Livraisons(props) {
               var selProd = props.products.find(function(p) { return String(p.id) === String(l.productId); });
               return (
                 <div key={i} style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                  <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
-                    <option value="">-- Produit --</option>
-                    {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} (Stock: {p.stock} {p.unit})</option>; })}
-                  </select>
+                  <ProductSearch
+                    products={props.products}
+                    value={l.productId}
+                    onChange={function(v) { setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v }) : x; }); }); }}
+                    placeholder="Rechercher..."
+                  />
                   <input type="number" min="1" max={selProd ? selProd.stock : undefined} value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 60 })} />
                   <select value={l.unite} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { unite: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 90 })}>
                     {UNITS.map(function(u) { return <option key={u} value={u}>{u}</option>; })}
@@ -961,6 +965,84 @@ function Livraisons(props) {
           </div>
         </Modal>
       )}
+    </div>
+  );
+}
+
+
+// ─── COMPOSANT RECHERCHE PRODUIT ─────────────────────────────────────────────
+function ProductSearch(props) {
+  // props: products, value (productId), onChange(productId), placeholder
+  var [query, setQuery] = useState("");
+  var [open, setOpen] = useState(false);
+  var selProd = props.products.find(function(p) { return String(p.id) === String(props.value); });
+
+  // Quand un produit est déjà sélectionné, afficher son nom
+  var displayVal = selProd ? selProd.name : query;
+
+  var filtered = query.length >= 1
+    ? props.products.filter(function(p) {
+        return p.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+               (p.category || "").toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+               String(p.id).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+      }).slice(0, 20)
+    : [];
+
+  function select(p) {
+    props.onChange(String(p.id));
+    setQuery("");
+    setOpen(false);
+  }
+
+  function clear() {
+    props.onChange("");
+    setQuery("");
+    setOpen(false);
+  }
+
+  return (
+    <div style={{ position: "relative", flex: "2" }}>
+      <div style={{ display: "flex", alignItems: "center", background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: 10, overflow: "hidden" }}>
+        <input
+          type="text"
+          value={selProd ? selProd.name : query}
+          placeholder={props.placeholder || "Rechercher un produit..."}
+          onFocus={function() { if (selProd) { props.onChange(""); setQuery(""); } setOpen(true); }}
+          onChange={function(e) { setQuery(e.target.value); setOpen(true); if (selProd) props.onChange(""); }}
+          style={{ flex: 1, padding: "10px 12px", border: "none", outline: "none", fontSize: 13, background: "transparent" }}
+        />
+        {(selProd || query) && (
+          <button onClick={clear} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: "0 10px", fontSize: 16 }}>✕</button>
+        )}
+        {!selProd && !query && <span style={{ padding: "0 10px", color: "#94a3b8", fontSize: 13 }}>🔍</span>}
+      </div>
+      {open && filtered.length > 0 && (
+        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 10, boxShadow: "0 8px 24px #00000020", zIndex: 500, maxHeight: 220, overflowY: "auto", marginTop: 4 }}>
+          {filtered.map(function(p) {
+            return (
+              <div key={p.id} onMouseDown={function() { select(p); }} onClick={function() { select(p); }}
+                style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                onMouseEnter={function(e) { e.currentTarget.style.background = "#eff6ff"; }}
+                onMouseLeave={function(e) { e.currentTarget.style.background = "transparent"; }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: "#1e293b" }}>{p.name}</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8" }}>{p.category} · {p.unit}</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 10 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: "#1e3a8a" }}>{fmtE(p.price)}</div>
+                  <div style={{ fontSize: 11, color: p.stock > 0 ? "#22c55e" : "#f59e0b" }}>Stock: {p.stock}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {open && query.length >= 1 && filtered.length === 0 && (
+        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 10, boxShadow: "0 8px 24px #00000020", zIndex: 500, padding: "14px", textAlign: "center", color: "#94a3b8", fontSize: 13, marginTop: 4 }}>
+          Aucun produit pour "{query}"
+        </div>
+      )}
+      {open && <div style={{ position: "fixed", inset: 0, zIndex: 499 }} onClick={function() { setOpen(false); }} />}
     </div>
   );
 }
@@ -1126,11 +1208,13 @@ function Devis(props) {
               var displayPrice = l.customPrice !== "" && l.customPrice !== undefined ? l.customPrice : (selProd ? selProd.price : "");
               return (
                 <div key={i} style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
-                    <select value={l.productId} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v, customPrice: "" }) : x; }); }); }} style={Object.assign({}, IS, { flex: "2" })}>
-                      <option value="">-- Produit --</option>
-                      {props.products.map(function(p) { return <option key={p.id} value={p.id}>{p.name} — {fmtE(p.price)}/{p.unit}</option>; })}
-                    </select>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 4, alignItems: "center" }}>
+                    <ProductSearch
+                      products={props.products}
+                      value={l.productId}
+                      onChange={function(v) { setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v, customPrice: "" }) : x; }); }); }}
+                      placeholder="Rechercher un produit..."
+                    />
                     <input type="number" min="1" value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 60 })} placeholder="Qte" />
                     <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "0 10px" }}>✕</button>
                   </div>
