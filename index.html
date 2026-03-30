@@ -81,12 +81,597 @@ var INIT_USERS = [
   { id: 1, name: "Admin CAREMA", email: "admin@carema.mc", password: "admin123", role: "admin", avatar: "AC" },
 ];
 var INIT_PRODUCTS = [
-  { id: 1, name: "Ciment Portland CEM II", unit: "sac 25kg", price: 8.5, stock: 120, minStock: 20, category: "Gros oeuvre" },
-  { id: 2, name: "Sable fin de riviere", unit: "m3", price: 45, stock: 35, minStock: 10, category: "Granulats" },
-  { id: 3, name: "Gravier 10/20", unit: "m3", price: 52, stock: 28, minStock: 8, category: "Granulats" },
-  { id: 4, name: "Parpaing 20x20x50", unit: "unite", price: 1.2, stock: 500, minStock: 100, category: "Maconnerie" },
-  { id: 5, name: "Ferraille HA 12", unit: "barre 6m", price: 14, stock: 80, minStock: 20, category: "Ferraillage" },
-];
+  { id: 1, name: "10x30 GLOBALCOLLECTION gris uni uni brillant 7.8mm 16870-1030", unit: "m2", price: 24.56, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 2, name: "10x30 plinthe-à-gorge EVO denver", unit: "PIECE", price: 2.62, stock: 21.0, minStock: 0, category: "PADA" },
+  { id: 3, name: "12.5x25 CARREAU CHIFFRE/LETTRE 7cm blanc/azuractif PN18 8mm 900567-S10002", unit: "PIECE", price: 65.47, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 4, name: "12.5x25 CARREAU D'ABOUT neutre10 8mm 701-37011", unit: "PIECE", price: 6.87, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 5, name: "12.5x25 CARREAU RAINURES neutre10 PN24 15mm 15mm 91-53130", unit: "PIECE", price: 3.49, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 6, name: "12.5x25 CHROMA 8mm 553004-38110H", unit: "m2", price: 46.3, stock: 47.0, minStock: 0, category: "AGRO" },
+  { id: 7, name: "12.5x25 CHROMA 8mm 553006-38110H", unit: "m2", price: 46.3, stock: 70.0, minStock: 0, category: "AGRO" },
+  { id: 8, name: "12.5x25 CHROMA 8mm 554006-32020H", unit: "m2", price: 46.3, stock: 59.0, minStock: 0, category: "AGRO" },
+  { id: 9, name: "12.5x25 CHROMA azur actif PN18 8mm 553001-38110H", unit: "m2", price: 46.3, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 10, name: "12.5x25 CHROMA azur actif PN24 8mm 554001-38110H", unit: "m2", price: 46.3, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 11, name: "12.5x25 CHROMA neutre10 PN18 8mm 91i-38110H", unit: "m2", price: 46.3, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 12, name: "12.5x25 PETIT BORD ARRONDI RAINURES neutre10 PN24 15mm 91-53135", unit: "PIECE", price: 5.23, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 13, name: "120x120 MARMOKER statuario grigio lucida 9mm", unit: "m2", price: 42.64, stock: 0, minStock: 0, category: "PADA" },
+  { id: 14, name: "122x122 Eterea Avorio", unit: "m2", price: 15.5, stock: 0, minStock: 0, category: "TUSE" },
+  { id: 15, name: "122x122x2 Eterea Avorio FP2", unit: "m2", price: 25.0, stock: 0, minStock: 0, category: "TUSE" },
+  { id: 16, name: "15x15 MURALSBLEND air blue#1 mat pierre 7mm 32110-1515", unit: "m2", price: 18.51, stock: 9.0, minStock: 0, category: "MOSA" },
+  { id: 17, name: "15x15 MURALSBLEND sea blue#1 mat pierre 7mm 32090-1515", unit: "m2", price: 18.51, stock: 8.0, minStock: 0, category: "MOSA" },
+  { id: 18, name: "15x30 MURALSLINES bright white uni brillant 7mm 36510-1530", unit: "m2", price: 27.77, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 19, name: "15x90 NEWOOD white 9mm", unit: "m2", price: 19.03, stock: 0, minStock: 0, category: "PADA" },
+  { id: 20, name: "160x320 PIETRE DI SARDEGNA porto rotondo 12mm", unit: "m2", price: 58.32, stock: 0, minStock: 0, category: "PADA" },
+  { id: 21, name: "2.5x10 plinthe A4 EVO denver", unit: "PIECE", price: 3.1, stock: 0, minStock: 0, category: "PADA" },
+  { id: 22, name: "2.5x10 plinthe S4 EVO denver", unit: "PIECE", price: 3.1, stock: 15.0, minStock: 0, category: "PADA" },
+  { id: 23, name: "20x20 AQUA grigio lux 4mm AQ.0N40", unit: "m2", price: 21.6, stock: 0, minStock: 0, category: "MOPL" },
+  { id: 24, name: "20x20 CALEIDOSCOPIO menta 7.3mm", unit: "m2", price: 14.22, stock: 0, minStock: 0, category: "PADA" },
+  { id: 25, name: "20x20 GRANITO 1 nebraska 8mm", unit: "m2", price: 11.29, stock: 0, minStock: 0, category: "PADA" },
+  { id: 26, name: "20x20 HEXAGONE M blanc 16mm H8//16", unit: "PIECE", price: 3.62, stock: 0, minStock: 0, category: "CARO" },
+  { id: 27, name: "20x20 HEXAGONE M gris basalte 16mm H19//16", unit: "PIECE", price: 3.62, stock: 0, minStock: 0, category: "CARO" },
+  { id: 28, name: "20x20 HEXAGONE M noir 16 mm H9//16", unit: "PIECE", price: 3.62, stock: 0, minStock: 0, category: "CARO" },
+  { id: 29, name: "20x20 HEXAGONE M rouge 16mm H2//16", unit: "PIECE", price: 3.62, stock: 0, minStock: 0, category: "CARO" },
+  { id: 30, name: "20x20 UNICOLORE bianco avorio R10 8mm", unit: "m2", price: 10.75, stock: 0, minStock: 0, category: "PADA" },
+  { id: 31, name: "20x20 UNICOLORE bianco b safe", unit: "m2", price: 13.12, stock: 0, minStock: 0, category: "PADA" },
+  { id: 32, name: "25 PIECE RAINURES INCLINEE neutre10 PN24 91-55840", unit: "PIECE", price: 31.48, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 33, name: "25 REBORD MAIN COURANTE azur actif PN24 553001-55830", unit: "PIECE", price: 10.88, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 34, name: "253x142 UNICO CLASSICO bianco polished 3cm SB100", unit: "m2", price: 28.6, stock: 0, minStock: 0, category: "AGGL" },
+  { id: 35, name: "253x142 UNICO CLASSICO nero polished 3cm SB106", unit: "m2", price: 36.3, stock: 0, minStock: 0, category: "AGGL" },
+  { id: 36, name: "25x06 GORGE RAYON bleu moyen 8mm 552007-18190", unit: "PIECE", price: 10.89, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 37, name: "25x16 COQUE DE CANIVEAU neutre10 15mm 701-59680", unit: "PIECE", price: 13.96, stock: 0, minStock: 0, category: "AGRO" },
+  { id: 38, name: "30x30 CORE COLLECTION TERRA mid grey lisse 10mm 206V3030", unit: "m2", price: 38.69, stock: 123.6, minStock: 0, category: "MOSA" },
+  { id: 39, name: "30x30 CORECOLLECTIONTERRA anthracite lisse 10mm 216V3030", unit: "m2", price: 38.69, stock: 34.2, minStock: 0, category: "MOSA" },
+  { id: 40, name: "30x30 CORECOLLECTIONTERRA anthracite R11/C 10mm 216RL3030", unit: "m2", price: 38.69, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 41, name: "30x30 CORECOLLECTIONTERRA mid warm grey R11/C 10mm 204RL3030", unit: "m2", price: 38.69, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 42, name: "30x30 EVO chicago secura 7.6mm", unit: "m2", price: 10.57, stock: 0, minStock: 0, category: "PADA" },
+  { id: 43, name: "30x30 EVO denver 7.6mm", unit: "m2", price: 11.66, stock: 0, minStock: 0, category: "PADA" },
+  { id: 44, name: "30x30 EVO denver secura 7.6mm", unit: "m2", price: 11.66, stock: 0, minStock: 0, category: "PADA" },
+  { id: 45, name: "30x30 EVO new york 7.6mm", unit: "m2", price: 10.57, stock: 0, minStock: 0, category: "PADA" },
+  { id: 46, name: "30x30 EVO seattle secura 7.6mm", unit: "m2", price: 10.57, stock: 0, minStock: 0, category: "PADA" },
+  { id: 47, name: "30x30 GLOBALCOLLECTION vert pastel petits grains 8mm 75490V3030", unit: "m2", price: 24.28, stock: 19.44, minStock: 0, category: "MOSA" },
+  { id: 48, name: "30x30 GRIGIO EGEO", unit: "m2", price: 0.0, stock: 218.0, minStock: 0, category: "PADA" },
+  { id: 49, name: "30x30 GRIGIO EGEO LEVIGATO", unit: "m2", price: 0.0, stock: 200.0, minStock: 0, category: "PADA" },
+  { id: 50, name: "30X30 ROCCIA bianco a", unit: "m2", price: 0.0, stock: 39.52, minStock: 0, category: "PADA" },
+  { id: 51, name: "30x30 STANDARD uni blanc crème structuré R11 A+B+C rectifié D925", unit: "m2", price: 12.78, stock: 0, minStock: 0, category: "NOVO" },
+  { id: 52, name: "30x30 UNICOLORE bianco b secura 8mm", unit: "m2", price: 10.99, stock: 0, minStock: 0, category: "PADA" },
+  { id: 53, name: "30x60 ARCHITECTURE light grey 9.4mm", unit: "m2", price: 15.09, stock: 30.24, minStock: 0, category: "PADA" },
+  { id: 54, name: "30x60 CEMENTO bianco rasato 9mm", unit: "m2", price: 16.77, stock: 0, minStock: 0, category: "PADA" },
+  { id: 55, name: "30x60 EVO boston 9mm", unit: "m2", price: 15.67, stock: 33.48, minStock: 0, category: "PADA" },
+  { id: 56, name: "30x60 EVO denver 9mm", unit: "m2", price: 14.1, stock: 0, minStock: 0, category: "PADA" },
+  { id: 57, name: "30x60 MARMOSMART pietrasanta smart honed 9mm", unit: "m2", price: 17.86, stock: 0, minStock: 0, category: "PADA" },
+  { id: 58, name: "30x60 MARTE grigio egeo 9.4mm", unit: "m2", price: 16.77, stock: 32.72, minStock: 0, category: "PADA" },
+  { id: 59, name: "30x60 MARTE grigio maggia 9.4mm", unit: "m2", price: 15.09, stock: 0, minStock: 0, category: "PADA" },
+  { id: 60, name: "30x60 MARTE grigio maggia bocciardato 9.4mm", unit: "m2", price: 15.09, stock: 0, minStock: 0, category: "PADA" },
+  { id: 61, name: "30x60 METRPOPOLIS metro sand 9mm", unit: "m2", price: 16.03, stock: 0, minStock: 0, category: "PADA" },
+  { id: 62, name: "30x60 ZEPHYR grey structuré R11 A+B+C rectifié J823", unit: "m2", price: 21.6, stock: 0, minStock: 0, category: "NOVO" },
+  { id: 63, name: "30x7 plinthe droite GLOBALCOLLECTION vert pastel gros grains 8mm 75790BN307", unit: "PIECE", price: 17.92, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 64, name: "30x9.5 plinthe droite CORECOLLECTIONTERRA anthracite 10mm 216BP3010", unit: "PIECE", price: 5.17, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 65, name: "30x9.5 plinthe droite CORECOLLECTIONTERRA mid grey 10mm 206BP3010", unit: "PIECE", price: 5.17, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 66, name: "60x120 MARMOSMART pietrasanta smart R10 honed 9mm", unit: "m2", price: 18.22, stock: 0, minStock: 0, category: "PADA" },
+  { id: 67, name: "60x30 UNICO CLASSICO bianco polished 2cm SB100", unit: "m2", price: 27.5, stock: 0, minStock: 0, category: "AGGL" },
+  { id: 68, name: "60x30 UNICO CLASSICO nero polished 2cm SB106", unit: "m2", price: 33.0, stock: 0, minStock: 0, category: "AGGL" },
+  { id: 69, name: "60x60 ARCHITECTURE beige 9.4mm", unit: "m2", price: 17.5, stock: 0, minStock: 0, category: "PADA" },
+  { id: 70, name: "60x60 ARCHITECTURE black 9.4mm", unit: "m2", price: 19.31, stock: 0, minStock: 0, category: "PADA" },
+  { id: 71, name: "60x60 ARCHITECTURE warm grey 9.4mm", unit: "m2", price: 15.75, stock: 122.4, minStock: 0, category: "PADA" },
+  { id: 72, name: "60x60 CORECOLLECTIONTERRA mid grey lisse 12mm 206V6060", unit: "m2", price: 64.49, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 73, name: "60x60 CORECOLLECTIONTERRA mid warm grey R11/C 12mm 204RL6060", unit: "m2", price: 64.49, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 74, name: "60x60 ERA pepe 9mm", unit: "m2", price: 15.09, stock: 0, minStock: 0, category: "PADA" },
+  { id: 75, name: "60x60 EVO denver 9mm", unit: "m2", price: 17.13, stock: 11.52, minStock: 0, category: "PADA" },
+  { id: 76, name: "60x60 EVO new york 9mm", unit: "m2", price: 16.04, stock: 0, minStock: 0, category: "PADA" },
+  { id: 77, name: "60x60 Refin Grigia 20 mm U4P3", unit: "m2", price: 24.0, stock: 0, minStock: 0, category: "REFG" },
+  { id: 78, name: "60x60 UNICO CLASSICO crema brushed 2cm SB134", unit: "m2", price: 33.5, stock: 0, minStock: 0, category: "AGGL" },
+  { id: 79, name: "60x60 UNICOLORE bianco assoluto 9mm", unit: "m2", price: 20.66, stock: 0, minStock: 0, category: "PADA" },
+  { id: 80, name: "60x9.5 plinthe droite CORECOLLECTIONTERRA mid grey 12mm 206BP6010", unit: "PIECE", price: 8.79, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 81, name: "61x122 Eterea Avorio", unit: "m2", price: 12.5, stock: 0, minStock: 0, category: "TUSE" },
+  { id: 82, name: "61x61 Eterea Avorio", unit: "m2", price: 9.5, stock: 0, minStock: 0, category: "TUSE" },
+  { id: 83, name: "7C BASE RLS HIGH  H12-20MM 1MM 100 PIÈCES", unit: "sac", price: 6.37, stock: 192.0, minStock: 0, category: "RAIM" },
+  { id: 84, name: "7x60 plinthe ERA pepe", unit: "PIECE", price: 2.74, stock: 0, minStock: 0, category: "PADA" },
+  { id: 85, name: "7x60 plinthe STILE french grey", unit: "PIECE", price: 2.74, stock: 126.0, minStock: 0, category: "PADA" },
+  { id: 86, name: "90x90 METRPOPOLIS metro sand 9mm", unit: "m2", price: 20.04, stock: 0, minStock: 0, category: "PADA" },
+  { id: 87, name: "9x30 plinthe UNICOLORE bianco assoluto", unit: "PIECE", price: 0.94, stock: 0, minStock: 0, category: "PADA" },
+  { id: 88, name: "9x60 plinthe ARCHITECTURE beige", unit: "PIECE", price: 2.52, stock: 0, minStock: 0, category: "PADA" },
+  { id: 89, name: "9x60 plinthe MARTE grigio egeo", unit: "PIECE", price: 2.55, stock: 0, minStock: 0, category: "PADA" },
+  { id: 90, name: "9x60 plinthe MARTE grigio maggia", unit: "PIECE", price: 2.55, stock: 0, minStock: 0, category: "PADA" },
+  { id: 91, name: "9x60 plinthe METEOR grigio", unit: "PIECE", price: 2.38, stock: 0, minStock: 0, category: "PADA" },
+  { id: 92, name: "AGROB 12.5x25 554007-38110H", unit: "m2", price: 46.3, stock: 20.0, minStock: 0, category: "AGRO" },
+  { id: 93, name: "AGROB BUCHTAL 18120H 701i 12.5X25", unit: "m2", price: 46.0, stock: 358.77, minStock: 0, category: "AGRO" },
+  { id: 94, name: "AIMANTS TRAPPE VISITE D25 KG5", unit: "PIECE", price: 2.8, stock: 0, minStock: 0, category: "EL00" },
+  { id: 95, name: "ALCALAGRES DOLMEN BEIGE 45x45 EP 2CM (METROPOLE)", unit: "m2", price: 25.0, stock: 470.0, minStock: 0, category: "ALCA" },
+  { id: 96, name: "Azur Cielo 300x190 Ep 2cm", unit: "m2", price: 200.0, stock: 28.5, minStock: 0, category: "MARB" },
+  { id: 97, name: "Banc en Biancone Musicco 100x50x8 - chant long éclaté", unit: "PIECE", price: 340.0, stock: 0, minStock: 0, category: "MUSB" },
+  { id: 98, name: "Bande Périphérique Adhésif  h15cm, 50 ML", unit: "PIECE", price: 50.0, stock: 20.0, minStock: 0, category: "NONA" },
+  { id: 99, name: "Beige Millefiori 380x170 Ep 2cm", unit: "m2", price: 200.0, stock: 19.0, minStock: 0, category: "MARB" },
+  { id: 100, name: "BETA Chaussures de sécurité 7317NA", unit: "PIECE", price: 39.5, stock: 30.0, minStock: 0, category: "BETA" },
+  { id: 101, name: "Bianco Antolini 340x190 Ep 2cm", unit: "m2", price: 200.0, stock: 45.2, minStock: 0, category: "MARB" },
+  { id: 102, name: "Bianco Carrara Bocciardato 310x180 Ep 2cm", unit: "m2", price: 200.0, stock: 27.9, minStock: 0, category: "MARB" },
+  { id: 103, name: "Bianco Carrara Lucido 230x140 Ep 3cm", unit: "m2", price: 200.0, stock: 25.7, minStock: 0, category: "MARB" },
+  { id: 104, name: "Bianco Carrara Lucido 310x180 Ep 2cm", unit: "m2", price: 200.0, stock: 55.8, minStock: 0, category: "MARB" },
+  { id: 105, name: "Bianco Michelangelo Lucido 270x150 Ep 2cm", unit: "m2", price: 200.0, stock: 166.0, minStock: 0, category: "MARB" },
+  { id: 106, name: "BISAZZA EGLUE EPOXY 3.24 KG", unit: "PIECE", price: 19.9, stock: 52.0, minStock: 0, category: "BISA" },
+  { id: 107, name: "BISAZZA FILLGEL PLUS EPOXY BIANCO NEVE 3KG", unit: "PIECE", price: 19.9, stock: 30.0, minStock: 0, category: "BISF" },
+  { id: 108, name: "CALACATTA  320x180 Ep 2cm", unit: "m2", price: 200.0, stock: 11.5, minStock: 0, category: "MARB" },
+  { id: 109, name: "CALACATTA LINCOLN 190x180 EP. 1.5CM", unit: "m2", price: 200.0, stock: 521.0, minStock: 0, category: "MARB" },
+  { id: 110, name: "CALACATTA ORO 330x160 Ep 2cm", unit: "m2", price: 200.0, stock: 26.4, minStock: 0, category: "MARB" },
+  { id: 111, name: "CASQUE DE CHANTIER BLANC", unit: "PIECE", price: 28.0, stock: 15.0, minStock: 0, category: "RAIM" },
+  { id: 112, name: "CERCOM 30X60", unit: "m2", price: 10.0, stock: 49.0, minStock: 0, category: "CERC" },
+  { id: 113, name: "CLASSIC CREAM 60X120 PULIDO RETIFICADO", unit: "m2", price: 0.0, stock: 15.84, minStock: 0, category: "CLCR" },
+  { id: 114, name: "Clou Podotactile a sceller", unit: "PIECE", price: 0.5, stock: 3000.0, minStock: 0, category: "NONA" },
+  { id: 115, name: "Clou Podotactile sans perçage Aluminium", unit: "PIECE", price: 0.5, stock: 940.0, minStock: 0, category: "NONA" },
+  { id: 116, name: "COLLE MAXGUM C2-S1 BLANC 25KG", unit: "sac", price: 15.0, stock: 0, minStock: 0, category: "CSFM" },
+  { id: 117, name: "COMBINAISON DE PROTECTION JETABLE", unit: "PIECE", price: 3.0, stock: 340.0, minStock: 0, category: "NONA" },
+  { id: 118, name: "CORNIERE CARTON PROTECTION 1.2M", unit: "PIECE", price: 0.41, stock: 850.0, minStock: 0, category: "NONA" },
+  { id: 119, name: "couvertine courbe 42*2", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MTCO" },
+  { id: 120, name: "Couvertine courbes avec larmiers", unit: "ml", price: 160.0, stock: 0, minStock: 0, category: "COUV" },
+  { id: 121, name: "Couvertine droite", unit: "nan", price: 89.75, stock: 0, minStock: 0, category: "MTCO" },
+  { id: 122, name: "Crema Marfil  320x170 Ep 3cm", unit: "m2", price: 200.0, stock: 32.6, minStock: 0, category: "MARB" },
+  { id: 123, name: "Crema Marfil  320x180 Ep 2cm", unit: "m2", price: 200.0, stock: 17.2, minStock: 0, category: "MARB" },
+  { id: 124, name: "CRISTALLO ENIGMA 310x180 Ep 3cm", unit: "m2", price: 200.0, stock: 5.5, minStock: 0, category: "MARB" },
+  { id: 125, name: "DALLAGE 40*40*2 ADOUCI CARRARE C", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MTCA" },
+  { id: 126, name: "Dalle en Marbre Blanc de Carrare", unit: "m2", price: 242.31, stock: 0, minStock: 0, category: "MARB" },
+  { id: 127, name: "DALLE NERO GRANIGLIATO 40*20*3", unit: "m2", price: 353.85, stock: 0, minStock: 0, category: "MTNE" },
+  { id: 128, name: "Dalles 50*50*1.8 boucharde", unit: "m2", price: 62.0, stock: 0, minStock: 0, category: "MUS5" },
+  { id: 129, name: "DALLES GRANIGLIATO 40*20", unit: "m2", price: 353.85, stock: 0, minStock: 0, category: "MTDA" },
+  { id: 130, name: "DAREN NOIR 60X120 PULIDO RECTIFICADO", unit: "m2", price: 0.0, stock: 37.44, minStock: 0, category: "DANO" },
+  { id: 131, name: "DÉCOUPE MARBRERIE", unit: "Heures", price: 80.0, stock: 0, minStock: 0, category: "0001" },
+  { id: 132, name: "DÉCOUPE WATERJET", unit: "Heures", price: 360.0, stock: 0, minStock: 0, category: "0001" },
+  { id: 133, name: "DIABRA SILICONE MARBRE TRANSPARENT", unit: "PIECE", price: 7.5, stock: 20.0, minStock: 0, category: "DIAB" },
+  { id: 134, name: "Disque Diamant Polissage Vert", unit: "PIECE", price: 55.0, stock: 0, minStock: 0, category: "NONA" },
+  { id: 135, name: "divers", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "DIVE" },
+  { id: 136, name: "DIVERS TRAVAUX", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "MODI" },
+  { id: 137, name: "Dover White 290x190 Ep 3cm", unit: "m2", price: 200.0, stock: 11.3, minStock: 0, category: "MARB" },
+  { id: 138, name: "DRAINA G10 1x15M", unit: "PIECE", price: 124.81, stock: 0, minStock: 0, category: "NONA" },
+  { id: 139, name: "Ebrasement + cadre portes c PC-4 et PC-3 en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 140, name: "Ebrasement portes douches/wc (PV1b+PV1bd+PV-2) en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 141, name: "Embrasement et cadre de porte douche/wc en Pierre Beige type Braze", unit: "nan", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 142, name: "Embrasement+cadre portes c PC-1+1PB-1 (CP 334) Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 143, name: "Emperador Dark 280x150 Ep 3cm", unit: "m2", price: 200.0, stock: 16.8, minStock: 0, category: "MARB" },
+  { id: 144, name: "Encadrement miroir vasque 130 h en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 145, name: "Encadrement mural douches en Pierre Beige type Braze 215 hauteur", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 146, name: "Encadrement Tablier Baignoire 60*205 en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 147, name: "Exécution d'une chape traditionnelle au mortier", unit: "m2", price: 27.22, stock: 0, minStock: 0, category: "CHAP" },
+  { id: 148, name: "Exécution d'une étanchéité sous carrelage (SPEC)", unit: "m2", price: 10.7, stock: 0, minStock: 0, category: "ETAN" },
+  { id: 149, name: "F&P de Banc en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 150, name: "F&P de Encadrement alcôves baignoire 215*205 en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 151, name: "F&P de plan bar en Marbre Calacatta Borghini", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 152, name: "F&P de plan de Baignoire PN-6 en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 153, name: "F&P de Plan de Bar PN-7 en Calacatta Borghini", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 154, name: "F&P de Plan de double vasque type MV1A en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 155, name: "F&P de plan de vasque MV4/MV6 sur jambage en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 156, name: "F&P de simple vasque droit type MV1C en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 157, name: "F&P de simple vasque façonné en Pierre Beige type Braze", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 158, name: "F&P de Sol ascenseur Gris type Noise + beige type Braze", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 159, name: "F&P ebrasement +cadre porte c verre PCV-1/PCV-2/PCV-3 en Pierre Beige type Braze", unit: "nan", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 160, name: "F&P encadrement paroi intérieure alcoves baignoire en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 161, name: "F&P étagère PN14 en Pierre beige Type Braze niche SDB", unit: "PIECE", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 162, name: "F&P plinthe type PN-3 en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 163, name: "F&P Stylobate type PN-4 en Pierre Beige type Braze", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 164, name: "F+P de couvertine droite", unit: "ml", price: 166.67, stock: 0, minStock: 0, category: "F/P" },
+  { id: 165, name: "FACONNAGE DE PLAN DE CUISINE", unit: "ENS", price: 360.0, stock: 0, minStock: 0, category: "FACO" },
+  { id: 166, name: "FILA CLEANER PRO DETERGENT MARBRE 1LT", unit: "BIDON", price: 15.0, stock: 0, minStock: 0, category: "FILA" },
+  { id: 167, name: "FMG 30X30 WHITE", unit: "m2", price: 10.0, stock: 34.0, minStock: 0, category: "FMG3" },
+  { id: 168, name: "FMG 30X60 WHITE PURITY NAT", unit: "m2", price: 10.0, stock: 26.0, minStock: 0, category: "FMG3" },
+  { id: 169, name: "Forfait découpe à la waterjet numérique dans notre atelier de marbrerie", unit: "ENS", price: 360.0, stock: 0, minStock: 0, category: "FORD" },
+  { id: 170, name: "Forfait Déplacement", unit: "nan", price: 120.0, stock: 0, minStock: 0, category: "DEP" },
+  { id: 171, name: "Fourniture", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "FETP" },
+  { id: 172, name: "Fourniture & Pose de bande Periph. type Grise de Noize", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MAIT" },
+  { id: 173, name: "Fourniture & Pose de couvertine courbe", unit: "ml", price: 160.0, stock: 0, minStock: 0, category: "F/PC" },
+  { id: 174, name: "Fourniture & Pose de crédence en céramique", unit: "ENS", price: 360.0, stock: 0, minStock: 0, category: "TRUC" },
+  { id: 175, name: "Fourniture & Pose de plinthe en marbre", unit: "nan", price: 96.93, stock: 0, minStock: 0, category: "F/P" },
+  { id: 176, name: "Fourniture & Pose de Rev. Mural Pierre beige type Braze", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 177, name: "Fourniture & Pose de sol en Pierre beige type Braze", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MARI" },
+  { id: 178, name: "Fourniture de plan de cuisine en ép. 12 mm - Marazzi - découpes et faconnages", unit: "ENS", price: 360.0, stock: 0, minStock: 0, category: "MARG" },
+  { id: 179, name: "FOURNITURE DE PLAN DE CUISINE MARAZZI G MARBLE", unit: "nan", price: 1878.0, stock: 0, minStock: 0, category: "PLAN" },
+  { id: 180, name: "Fourniture de plan de vasque en Marazzi GF ép 12 mm", unit: "ENS", price: 733.33, stock: 0, minStock: 0, category: "MARA" },
+  { id: 181, name: "FOURNITURE DE POT EN MARBRE BEIGE FACONNE EN ATELIER", unit: "PIECE", price: 120.0, stock: 0, minStock: 0, category: "POTS" },
+  { id: 182, name: "FOURNITURE DE POT EN MARBRE BLANC FACONNE EN ATELIER", unit: "PIECE", price: 320.0, stock: 0, minStock: 0, category: "POTB" },
+  { id: 183, name: "Fourniture et pose", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "FETP" },
+  { id: 184, name: "FOURNITURE ET POSE DE DALLAGE EP 3", unit: "m2", price: 35192.73, stock: 0, minStock: 0, category: "FETP" },
+  { id: 185, name: "Fourniture et pose de dalles sur plots type 60x60 .....", unit: "nan", price: 63.96, stock: 0, minStock: 0, category: "POSD" },
+  { id: 186, name: "Fourniture et pose de plinthes", unit: "ml", price: 9.81, stock: 0, minStock: 0, category: "POSP" },
+  { id: 187, name: "Fourniture et Pose de sol à damier en Pierre Type Gris Noise 25*25*2", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MAIT" },
+  { id: 188, name: "Fourniture et pose d'un isolant phonique sous chape", unit: "m2", price: 3.1, stock: 0, minStock: 0, category: "POSI" },
+  { id: 189, name: "Fourniture et pose d'un isolant thermique sous chape", unit: "m2", price: 18.48, stock: 0, minStock: 0, category: "POSI" },
+  { id: 190, name: "Fourniture et pose ml", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "FETP" },
+  { id: 191, name: "Fourniture plinthe standard", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "PLIS" },
+  { id: 192, name: "Fourniture standard", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "STAN" },
+  { id: 193, name: "GANTS MANUTENTION", unit: "PIECE", price: 2.18, stock: 81.0, minStock: 0, category: "RAIM" },
+  { id: 194, name: "GEBOSIL SILICONE ACRYLIQUE  BLANC", unit: "PIECE", price: 4.5, stock: 11.0, minStock: 0, category: "GEBO" },
+  { id: 195, name: "GEBOSIL SILICONE SANITARIE BLANC", unit: "PIECE", price: 4.5, stock: 82.0, minStock: 0, category: "GEBO" },
+  { id: 196, name: "GHELFI  BASE   H3-12MM 1.5MM 200 PIECES", unit: "sac", price: 5.6, stock: 127.0, minStock: 0, category: "RAIM" },
+  { id: 197, name: "GLASSTEX GT 40-40 EXTRA RETE MASSETTO 50M", unit: "m2", price: 1.01, stock: 1792.0, minStock: 0, category: "GLAS" },
+  { id: 198, name: "GMA CLASSIC CUT 80 SABLE WATERJET 25KG", unit: "sac", price: 11.25, stock: 360.0, minStock: 0, category: "GMAC" },
+  { id: 199, name: "Granit Différentes Couleurs 200x180 Ep 2cm", unit: "m2", price: 200.0, stock: 36.0, minStock: 0, category: "MARB" },
+  { id: 200, name: "Granit Différentes Couleurs 250x180 Ep 3cm", unit: "m2", price: 200.0, stock: 67.5, minStock: 0, category: "MARB" },
+  { id: 201, name: "Granit Noir Absolu 300x180 Ep 3cm", unit: "m2", price: 200.0, stock: 43.0, minStock: 0, category: "MARB" },
+  { id: 202, name: "Gris de Savoie Dark 300x180 Ep 2cm", unit: "m2", price: 200.0, stock: 59.0, minStock: 0, category: "MARB" },
+  { id: 203, name: "GRUPPO ARMONIE 60X60 MARMO LUX SAHARA", unit: "m2", price: 0.0, stock: 51.84, minStock: 0, category: "GRAR" },
+  { id: 204, name: "HILTI DISQUE CARRELAGE", unit: "PIECE", price: 0.0, stock: 93.0, minStock: 0, category: "HILT" },
+  { id: 205, name: "HILTI DISQUE MARBRE", unit: "PIECE", price: 0.0, stock: 40.0, minStock: 0, category: "HILT" },
+  { id: 206, name: "IRISH GREEN 280x150 Ep 2cm", unit: "m2", price: 200.0, stock: 21.0, minStock: 0, category: "MARB" },
+  { id: 207, name: "Isolant thermique URSA 600x1250x100 mm R:3", unit: "m2", price: 12.25, stock: 0, minStock: 0, category: "URSA" },
+  { id: 208, name: "Isolant thermique URSA 600x1250x200 mm R:3", unit: "m2", price: 22.1, stock: 0, minStock: 0, category: "URSA" },
+  { id: 209, name: "ITALGRANITI 80X180 STRIATO WIGHT", unit: "m2", price: 0.0, stock: 51.84, minStock: 0, category: "ITGR" },
+  { id: 210, name: "JOUPLAST PLOT ESSENTIEL dalle autonivelant 155-245", unit: "PIECE", price: 3.8, stock: 200.0, minStock: 0, category: "JOUP" },
+  { id: 211, name: "JOUPLAST PLOT ESSENTIEL dalle autonivelant 29-39mm", unit: "PIECE", price: 2.8, stock: 800.0, minStock: 0, category: "JOUP" },
+  { id: 212, name: "JOUPLAST PLOT ESSENTIEL dalle autonivelant 55-75", unit: "PIECE", price: 3.8, stock: 400.0, minStock: 0, category: "JOUP" },
+  { id: 213, name: "JOUPLAST PLOT ESSENTIEL dalle autonivelant 65-95", unit: "PIECE", price: 3.8, stock: 2700.0, minStock: 0, category: "JOUP" },
+  { id: 214, name: "JOUPLAST PLOT ESSENTIEL dalle autonivelant 95-155", unit: "PIECE", price: 3.8, stock: 680.0, minStock: 0, category: "JOUP" },
+  { id: 215, name: "KEOPE 60X60 ED GREY RT", unit: "m2", price: 10.0, stock: 139.32, minStock: 0, category: "KEOP" },
+  { id: 216, name: "KERAKOLL BIO GEL BIANCO 25KG", unit: "sac", price: 18.5, stock: 26.0, minStock: 0, category: "KERA" },
+  { id: 217, name: "KERAKOLL EPOXY FUGALITE KK2 3kg", unit: "BIDON", price: 28.2, stock: 215.0, minStock: 0, category: "KERA" },
+  { id: 218, name: "KERAKOLL FUGA BELLA 10 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 219, name: "KERAKOLL FUGA BELLA 16 3KG", unit: "sac", price: 7.5, stock: 5.0, minStock: 0, category: "KERA" },
+  { id: 220, name: "KERAKOLL FUGA BELLA 17 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 221, name: "KERAKOLL FUGA BELLA 18 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 222, name: "KERAKOLL FUGA BELLA 19 3KG", unit: "sac", price: 7.5, stock: 4.0, minStock: 0, category: "KERA" },
+  { id: 223, name: "KERAKOLL FUGA BELLA 21 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 224, name: "KERAKOLL FUGA BELLA 22 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 225, name: "KERAKOLL FUGA BELLA 23 3KG", unit: "sac", price: 7.5, stock: 5.0, minStock: 0, category: "KERA" },
+  { id: 226, name: "KERAKOLL FUGA BELLA 27 3KG", unit: "sac", price: 7.5, stock: 5.0, minStock: 0, category: "KERA" },
+  { id: 227, name: "KERAKOLL FUGA BELLA 28 3KG", unit: "sac", price: 7.5, stock: 7.0, minStock: 0, category: "KERA" },
+  { id: 228, name: "KERAKOLL FUGA BELLA 29 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 229, name: "KERAKOLL FUGA BELLA 32 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 230, name: "KERAKOLL FUGA BELLA 33 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 231, name: "KERAKOLL FUGA BELLA 34 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 232, name: "KERAKOLL FUGA BELLA 35 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 233, name: "KERAKOLL FUGA BELLA 36 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 234, name: "KERAKOLL FUGA BELLA 37 3KG", unit: "sac", price: 7.5, stock: 4.0, minStock: 0, category: "KERA" },
+  { id: 235, name: "KERAKOLL FUGA BELLA 38 3KG", unit: "sac", price: 7.5, stock: 8.0, minStock: 0, category: "KERA" },
+  { id: 236, name: "KERAKOLL FUGA BELLA 39 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 237, name: "KERAKOLL FUGA BELLA 40 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 238, name: "KERAKOLL FUGA BELLA 41 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 239, name: "KERAKOLL FUGA BELLA 44 3KG", unit: "sac", price: 7.5, stock: 6.0, minStock: 0, category: "KERA" },
+  { id: 240, name: "KERAKOLL FUGA BELLA 45 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 241, name: "KERAKOLL FUGA BELLA 46 3KG", unit: "sac", price: 7.5, stock: 9.0, minStock: 0, category: "KERA" },
+  { id: 242, name: "KERAKOLL FUGA BELLA 47 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 243, name: "KERAKOLL FUGA BELLA 48 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 244, name: "KERAKOLL FUGA BELLA 49 3KG", unit: "sac", price: 7.5, stock: 4.0, minStock: 0, category: "KERA" },
+  { id: 245, name: "KERAKOLL FUGA BELLA 50 3KG", unit: "sac", price: 7.5, stock: 4.0, minStock: 0, category: "KERA" },
+  { id: 246, name: "KERAKOLL FUGA BELLA 9 3KG", unit: "sac", price: 7.5, stock: 9.0, minStock: 0, category: "KERA" },
+  { id: 247, name: "KERAKOLL FUGA BELLA KK10 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 248, name: "KERAKOLL FUGA BELLA KK103 3KG", unit: "sac", price: 9.25, stock: 0, minStock: 0, category: "KERA" },
+  { id: 249, name: "KERAKOLL FUGA BELLA KK152 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 250, name: "KERAKOLL FUGA BELLA KK153 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 251, name: "KERAKOLL FUGA BELLA KK154 3KG", unit: "sac", price: 7.5, stock: 2.0, minStock: 0, category: "KERA" },
+  { id: 252, name: "KERAKOLL FUGA BELLA KK6 3KG", unit: "sac", price: 7.5, stock: 3.0, minStock: 0, category: "KERA" },
+  { id: 253, name: "KERAKOLL FUGA BELLA KK8 3KG", unit: "sac", price: 7.5, stock: 9.0, minStock: 0, category: "KERA" },
+  { id: 254, name: "KERAKOLL FUGA BELLA KK92 3KG", unit: "sac", price: 7.5, stock: 1.0, minStock: 0, category: "KERA" },
+  { id: 255, name: "KERAKOLL FUGA SHOCK EPOXY 1LT", unit: "BIDON", price: 16.5, stock: 24.0, minStock: 0, category: "KERA" },
+  { id: 256, name: "KERAKOLL FUGABELLA KK136 KG3", unit: "sac", price: 9.25, stock: 16.0, minStock: 0, category: "KERA" },
+  { id: 257, name: "LABO FRANCE SPE XL 15KG", unit: "PIECE", price: 255.0, stock: 49.0, minStock: 0, category: "LABO" },
+  { id: 258, name: "LATER MIX CEM MINI 50L", unit: "sac", price: 13.0, stock: 0, minStock: 0, category: "LATE" },
+  { id: 259, name: "Lavander  250x145  Ep 2cm", unit: "m2", price: 200.0, stock: 14.5, minStock: 0, category: "MARB" },
+  { id: 260, name: "Le Roi Soleil Lux 280x150 Ep 2cm", unit: "m2", price: 200.0, stock: 25.2, minStock: 0, category: "MARB" },
+  { id: 261, name: "MAP MORTIER ADHESIF 25KG", unit: "sac", price: 0.0, stock: 2.0, minStock: 0, category: "MAPA" },
+  { id: 262, name: "MAPEI ECO PRIMER T 5KG", unit: "BIDON", price: 0.0, stock: 0, minStock: 0, category: "MAPE" },
+  { id: 263, name: "MAPEI KERACOLOR 111 25KG", unit: "sac", price: 52.0, stock: 0.8, minStock: 0, category: "MAPE" },
+  { id: 264, name: "MAPEI KERACOLOR 112 5KG", unit: "sac", price: 13.0, stock: 2.0, minStock: 0, category: "MAPE" },
+  { id: 265, name: "MAPEI KERAFLEX EXTRA S BLANC 25KG", unit: "sac", price: 11.0, stock: 149.5, minStock: 0, category: "MAPE" },
+  { id: 266, name: "MAPEI KERAFLEX EXTRA S GRIS 25KG", unit: "sac", price: 10.5, stock: 81.0, minStock: 0, category: "MAPE" },
+  { id: 267, name: "MAPEI KERAFLEX MAXI S BLANC 25KG", unit: "sac", price: 12.0, stock: 147.0, minStock: 0, category: "MAPE" },
+  { id: 268, name: "MAPEI KERAPOXY 100 BIANCO 3KG", unit: "PIECE", price: 19.9, stock: 11.0, minStock: 0, category: "MAPA" },
+  { id: 269, name: "MAPEI KERAPOXY 103 BIANCO LUNA 3KG", unit: "PIECE", price: 19.9, stock: 6.0, minStock: 0, category: "MAPE" },
+  { id: 270, name: "MAPEI KERAPOXY 110 MANHATTAN 3KG", unit: "PIECE", price: 19.9, stock: 164.0, minStock: 0, category: "MAPE" },
+  { id: 271, name: "MAPEI KERAPOXY 123 BIANCO ANTICO 3KG", unit: "PIECE", price: 19.9, stock: 1.0, minStock: 0, category: "MAPE" },
+  { id: 272, name: "MAPEI KERAPOXY 136 FANGO 3KG", unit: "PIECE", price: 19.9, stock: 5.0, minStock: 0, category: "MAPE" },
+  { id: 273, name: "MAPEI KERAPOXY 145 TERRA DI SIENA 3KG", unit: "PIECE", price: 19.9, stock: 17.0, minStock: 0, category: "MAPE" },
+  { id: 274, name: "MAPEI KERAPOXY 168 BLU 3KG", unit: "PIECE", price: 19.9, stock: 60.0, minStock: 0, category: "MAPE" },
+  { id: 275, name: "MAPEI KERAPOXY CLEANER SPRAY 0.75LT", unit: "PIECE", price: 18.8, stock: 18.0, minStock: 0, category: "MAPE" },
+  { id: 276, name: "MAPEI MAPESIL AC 100 BLANC", unit: "PIECE", price: 4.7, stock: 30.0, minStock: 0, category: "MAPE" },
+  { id: 277, name: "MAPEI MAPESIL AC 103 BLANC LUNE", unit: "PIECE", price: 4.7, stock: 63.0, minStock: 0, category: "MAPE" },
+  { id: 278, name: "MAPEI MAPESIL AC 110 MANHATTAN", unit: "PIECE", price: 4.7, stock: 42.0, minStock: 0, category: "MAPE" },
+  { id: 279, name: "MAPEI MAPESIL AC 111 GRIS ARGENT", unit: "PIECE", price: 4.7, stock: 30.0, minStock: 0, category: "MAPE" },
+  { id: 280, name: "MAPEI MAPESIL AC 112 GRIS MOYEN", unit: "PIECE", price: 4.7, stock: 30.0, minStock: 0, category: "MAPE" },
+  { id: 281, name: "MAPEI MAPESIL AC 113 GRIS CIMENT", unit: "PIECE", price: 4.7, stock: 24.0, minStock: 0, category: "MAPE" },
+  { id: 282, name: "MAPEI MAPESIL AC 114 ANTHRACITE", unit: "PIECE", price: 4.7, stock: 54.0, minStock: 0, category: "MAPE" },
+  { id: 283, name: "MAPEI MAPESIL AC 119 GRIS LONDRES", unit: "PIECE", price: 4.7, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 284, name: "MAPEI MAPESIL AC 120 NOIR", unit: "PIECE", price: 4.7, stock: 3.0, minStock: 0, category: "MAPE" },
+  { id: 285, name: "MAPEI MAPESIL AC 123 BLANC ANTIQUE", unit: "PIECE", price: 4.7, stock: 17.0, minStock: 0, category: "MAPE" },
+  { id: 286, name: "MAPEI MAPESIL AC 130 JASMIN", unit: "PIECE", price: 4.7, stock: 27.5, minStock: 0, category: "MAPE" },
+  { id: 287, name: "MAPEI MAPESIL AC 133 SABLE", unit: "PIECE", price: 4.7, stock: 62.0, minStock: 0, category: "MAPE" },
+  { id: 288, name: "MAPEI MAPESIL AC 187 LIN", unit: "PIECE", price: 4.7, stock: 28.0, minStock: 0, category: "MAPE" },
+  { id: 289, name: "MAPEI PRIMER G BIDON 25KG", unit: "BIDON", price: 76.8, stock: 5.0, minStock: 0, category: "MAPE" },
+  { id: 290, name: "MAPEI PROFILPAS 10104 12x2  2.0M ALU", unit: "ml", price: 3.0, stock: 16.0, minStock: 0, category: "MAPP" },
+  { id: 291, name: "MAPEI PROFILPAS 88266 h10 2.7M PROANGLE ALU NOIR", unit: "ml", price: 3.33, stock: 94.5, minStock: 0, category: "MAPP" },
+  { id: 292, name: "MAPEI PROFILPAS 88267 h11 2.7M PROANGLE ALU NOIR", unit: "ml", price: 3.33, stock: 54.0, minStock: 0, category: "MAPP" },
+  { id: 293, name: "MAPEI PROFILPAS 88441 ZV/10 h10 2.7M CONCRETE SAND ALU", unit: "ml", price: 5.6, stock: 13.5, minStock: 0, category: "MAPP" },
+  { id: 294, name: "MAPEI PROFILPAS 90050 ZQIN/10 PROANGLE Q 2.7M INOX", unit: "ml", price: 5.6, stock: 94.5, minStock: 0, category: "MAPP" },
+  { id: 295, name: "MAPEI PROFILPAS 90057 ZQLN/10 h10 2.7M LAIT POLI", unit: "ml", price: 13.0, stock: 16.2, minStock: 0, category: "MAPP" },
+  { id: 296, name: "MAPEI PROFILPAS 90103 ZQINS/10 PROANGLE Q 2.7M INOX BROSSE", unit: "ml", price: 5.6, stock: 67.5, minStock: 0, category: "MAPP" },
+  { id: 297, name: "MAPEI PROFILPAS 91646 AI/10 2.7M INOX", unit: "ml", price: 5.6, stock: 178.2, minStock: 0, category: "MAPP" },
+  { id: 298, name: "MAPEI PROFILPAS 99890 NZS/L/10 PROJOINT DIL 2.7M ALU", unit: "ml", price: 23.21, stock: 75.6, minStock: 0, category: "MAPP" },
+  { id: 299, name: "MAPEI PROFILPAS PROTIM 92424 RI/10 2.7M INOX", unit: "ml", price: 5.6, stock: 275.4, minStock: 0, category: "MAPP" },
+  { id: 300, name: "MAPEI PROFILPASS 10120 20X2mm PIATTO 2M", unit: "ml", price: 1.85, stock: 60.0, minStock: 0, category: "MAPP" },
+  { id: 301, name: "MAPEI PROFILPASS 88030 ZN/20 L LAITON", unit: "ml", price: 9.3, stock: 2.7, minStock: 0, category: "MAPP" },
+  { id: 302, name: "MAPEI PROFILPASS 88206 ZA/10 h10 2.7M ALU", unit: "ml", price: 2.3, stock: 202.5, minStock: 0, category: "MAPP" },
+  { id: 303, name: "MAPEI PROFILPASS 88402 ZA/10 SABLE", unit: "ml", price: 4.67, stock: 8.1, minStock: 0, category: "MAPP" },
+  { id: 304, name: "MAPEI PROFILPASS 93182 PA/10 REP. NIV.", unit: "ml", price: 4.37, stock: 51.3, minStock: 0, category: "MAPP" },
+  { id: 305, name: "MAPEI ULTRAPLAN CLASSIC 25KG", unit: "sac", price: 9.25, stock: 0, minStock: 0, category: "MAPE" },
+  { id: 306, name: "MAPEI ULTRAPLAN MAXI FIBRE 25KG", unit: "sac", price: 12.5, stock: 1.0, minStock: 0, category: "MAPE" },
+  { id: 307, name: "MAPESIL LM 100 BLANC", unit: "PIECE", price: 6.95, stock: 8.0, minStock: 0, category: "MAPE" },
+  { id: 308, name: "MAPESIL LM 110 MANHATTAN", unit: "PIECE", price: 6.95, stock: 104.0, minStock: 0, category: "MAPE" },
+  { id: 309, name: "MAPESIL LM 111 GRIS ARGENT", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 310, name: "MAPESIL LM 112 GRIS MOYEN", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 311, name: "MAPESIL LM 113 GRIS CIMENT", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 312, name: "MAPESIL LM 114 ANTHRACITE", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 313, name: "MAPESIL LM 120 NOIR", unit: "PIECE", price: 6.95, stock: 21.0, minStock: 0, category: "MAPE" },
+  { id: 314, name: "MAPESIL LM 130 JASMIN", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 315, name: "MAPESIL LM 132 BEIGE 2000", unit: "PIECE", price: 6.95, stock: 12.0, minStock: 0, category: "MAPE" },
+  { id: 316, name: "MAPESIL LM 999 TRANSPARENT", unit: "PIECE", price: 6.95, stock: 0, minStock: 0, category: "MAPE" },
+  { id: 317, name: "MARAZZI 30X60 GRES PTR ITL GR.RT", unit: "m2", price: 0.0, stock: 49.8, minStock: 0, category: "MARA" },
+  { id: 318, name: "MARAZZI 30x60 NEUTRO GRC BOC", unit: "m2", price: 10.0, stock: 82.8, minStock: 0, category: "MARA" },
+  { id: 319, name: "MARAZZI 60x120 ALL CREMAR LUX", unit: "m2", price: 35.2, stock: 54.0, minStock: 0, category: "MARA" },
+  { id: 320, name: "MARAZZI 60x60 ALL CREMAR LUX", unit: "m2", price: 32.0, stock: 40.0, minStock: 0, category: "MARA" },
+  { id: 321, name: "MARAZZI 60x60 CEMENTUM SAND 20 MM", unit: "m2", price: 18.0, stock: 0, minStock: 0, category: "MARA" },
+  { id: 322, name: "MARAZZI 7x60 ALL CRE MA BT L", unit: "ml", price: 7.6, stock: 23.39, minStock: 0, category: "MARA" },
+  { id: 323, name: "MARAZZI GRAND MARBLE LOOK CALACATTA MACCHIA VECCHI", unit: "nan", price: 1450.0, stock: 0, minStock: 0, category: "MARA" },
+  { id: 324, name: "MARAZZI GRES 60X60 MARBPLA MARFIL", unit: "m2", price: 0.0, stock: 32.0, minStock: 0, category: "MARA" },
+  { id: 325, name: "MARAZZI LUME 6*24", unit: "m2", price: 27.32, stock: 0, minStock: 0, category: "MARA" },
+  { id: 326, name: "MARAZZI LUME FORES 6*24 CHOIX 1", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MZIM" },
+  { id: 327, name: "MARAZZI LUME FORES 6*24 CHOIX 2", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MZIM" },
+  { id: 328, name: "MARAZZI LUME OFFWHITE 6*24 CHOIX 2", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MZIM" },
+  { id: 329, name: "MARAZZI MAYSTONE TRAVERTINO NAVONA EP.12 MM", unit: "ENS", price: 180.0, stock: 0, minStock: 0, category: "FOUR" },
+  { id: 330, name: "Marbre Trani Biancone MUSICCO", unit: "ml", price: 68.0, stock: 0, minStock: 0, category: "MUSC" },
+  { id: 331, name: "Marche Biancone Musicco ép5 - boucharde - chant long éclaté", unit: "ml", price: 218.0, stock: 0, minStock: 0, category: "MUSM" },
+  { id: 332, name: "MARCHE ET CONTREMARCHE CARRARE C", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "MTCA" },
+  { id: 333, name: "Margelle Biancone Musicco ép. 2 cm", unit: "ml", price: 47.0, stock: 0, minStock: 0, category: "MUSM" },
+  { id: 334, name: "Margelle Biancone Musicco ép.5 - surface boucharde", unit: "ml", price: 116.0, stock: 0, minStock: 0, category: "MUSM" },
+  { id: 335, name: "MASSETO 25 kg", unit: "sac", price: 2.22, stock: 1418.0, minStock: 0, category: "VIMA" },
+  { id: 336, name: "MASSETO RAPIDO 25 kg", unit: "sac", price: 4.5, stock: 0, minStock: 0, category: "VIMA" },
+  { id: 337, name: "Mirage série Jewels", unit: "m2", price: 250.0, stock: 0, minStock: 0, category: "CERA" },
+  { id: 338, name: "Moca Creme  200x150 Ep 2cm", unit: "m2", price: 200.0, stock: 30.0, minStock: 0, category: "MARB" },
+  { id: 339, name: "Moca Creme  250x160 Ep 5cm", unit: "m2", price: 200.0, stock: 8.0, minStock: 0, category: "MARB" },
+  { id: 340, name: "Moca Creme  270x170 Ep 4cm", unit: "m2", price: 200.0, stock: 13.7, minStock: 0, category: "MARB" },
+  { id: 341, name: "Moleanos Classique  260x190 Ep 2cm", unit: "m2", price: 200.0, stock: 39.5, minStock: 0, category: "MARB" },
+  { id: 342, name: "Moquette Protection Sol 50x1m 50m2", unit: "PIECE", price: 38.0, stock: 0, minStock: 0, category: "NONA" },
+  { id: 343, name: "MOSA 15X15 32270", unit: "m2", price: 18.51, stock: 164.0, minStock: 0, category: "MOSA" },
+  { id: 344, name: "MOSA 15X30 COLORE 36010", unit: "m2", price: 27.77, stock: 77.0, minStock: 0, category: "MOSA" },
+  { id: 345, name: "MOSA 204V 30X30", unit: "m2", price: 0.0, stock: 216.0, minStock: 0, category: "MOSA" },
+  { id: 346, name: "MOSA 30030 15X15", unit: "m2", price: 18.51, stock: 60.1, minStock: 0, category: "MOSA" },
+  { id: 347, name: "MOSA Core Collection Terra  Light Grey beige plinthe 60*9.5", unit: "PIECE", price: 9.12, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 348, name: "MOSA CORE COLLECTION TERRA LIGHT GREY BEIGE 5*60", unit: "m2", price: 31.89, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 349, name: "Mosa Core Collection Terra Light grey beige 60 x 60", unit: "m2", price: 47.84, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 350, name: "MOSA GLOBAL COLLECTION BLANC 1300-1515 15*15", unit: "m2", price: 26.52, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 351, name: "MOSA GLOBAL COLLECTION ROUGE DE SIENNE 25260 15*15", unit: "m2", price: 26.52, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 352, name: "MOSA GLOBAL COLLECTION ROUGE DE SIENNE UNI", unit: "m2", price: 34.55, stock: 0, minStock: 0, category: "MOSA" },
+  { id: 353, name: "MURETS CARRARE C", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MTMU" },
+  { id: 354, name: "Mystery WHITE 280x180 Ep 2cm", unit: "m2", price: 200.0, stock: 9.5, minStock: 0, category: "MARB" },
+  { id: 355, name: "Nid d'abeilles aluminium 20mm 3.05x1.55m", unit: "PIECE", price: 520.0, stock: 0, minStock: 0, category: "NIDA" },
+  { id: 356, name: "Noir Marquina 290x150 Ep 3cm", unit: "m2", price: 200.0, stock: 17.8, minStock: 0, category: "MARB" },
+  { id: 357, name: "Noir Marquina Brosse 270x150 Ep 2cm", unit: "m2", price: 200.0, stock: 28.3, minStock: 0, category: "MARB" },
+  { id: 358, name: "Noir Marquina Brosse 290x150 Ep 3cm", unit: "m2", price: 200.0, stock: 21.7, minStock: 0, category: "MARB" },
+  { id: 359, name: "NOVIPRO SILICONE CERAMIQUE BLANC", unit: "PIECE", price: 7.5, stock: 15.0, minStock: 0, category: "NOVI" },
+  { id: 360, name: "NOVIPRO SILICONE MULTI USAGE BLANC", unit: "PIECE", price: 7.5, stock: 9.0, minStock: 0, category: "NOVI" },
+  { id: 361, name: "NOVIPRO SILICONE TOUS MATERIAUX BLANC", unit: "PIECE", price: 7.5, stock: 12.0, minStock: 0, category: "NOVI" },
+  { id: 362, name: "OTTOSEAL S70 COULEUR C01 WEISS", unit: "PIECE", price: 4.5, stock: 15.0, minStock: 0, category: "OTTO" },
+  { id: 363, name: "OTTOSEAL S70 COULEUR C04 SCHWARZ", unit: "PIECE", price: 4.5, stock: 0, minStock: 0, category: "OTTO" },
+  { id: 364, name: "OTTOSEAL S70 COULEUR C10 BAHAMABEIGE", unit: "PIECE", price: 4.5, stock: 0, minStock: 0, category: "OTTO" },
+  { id: 365, name: "OTTOSEAL S70 COULEUR C80 PERLGRAU", unit: "PIECE", price: 4.5, stock: 38.0, minStock: 0, category: "OTTO" },
+  { id: 366, name: "PADANA 30X30 BIANCO TECHNIC R10", unit: "m2", price: 10.0, stock: 25.0, minStock: 0, category: "PAD3" },
+  { id: 367, name: "PADANA 30X30 BOSTON", unit: "m2", price: 0.0, stock: 6.48, minStock: 0, category: "PADA" },
+  { id: 368, name: "PADANA 30X30 METEOR GRIGIO", unit: "m2", price: 0.0, stock: 28.08, minStock: 0, category: "PADA" },
+  { id: 369, name: "PADANA 30X30 NEW YORG", unit: "m2", price: 10.0, stock: 18.0, minStock: 0, category: "PAD3" },
+  { id: 370, name: "PADANA 30X30 ROCCIA BIANCO B", unit: "m2", price: 0.0, stock: 28.0, minStock: 0, category: "PADA" },
+  { id: 371, name: "PADANA 30X60 CEMENTO RASATO BEIGE", unit: "m2", price: 16.77, stock: 23.76, minStock: 0, category: "PADA" },
+  { id: 372, name: "PADANA 60X60 ARCH COOL GREY", unit: "m2", price: 15.75, stock: 122.4, minStock: 0, category: "PADA" },
+  { id: 373, name: "PADANA 60X60 STILE french grey", unit: "m2", price: 0.0, stock: 18.72, minStock: 0, category: "PADA" },
+  { id: 374, name: "PADANA 9X60 NEW YORG", unit: "ml", price: 0.0, stock: 140.0, minStock: 0, category: "PADA" },
+  { id: 375, name: "PANNEAU WEDI 250x60 EP10mm", unit: "PIECE", price: 37.45, stock: 0, minStock: 0, category: "NONA" },
+  { id: 376, name: "PANNEAU WEDI 250x60 EP20mm", unit: "PIECE", price: 43.46, stock: 0, minStock: 0, category: "NONA" },
+  { id: 377, name: "PAREXLANKO 626 SILICONE CARRELEUR BLANC", unit: "PIECE", price: 7.5, stock: 29.0, minStock: 0, category: "PARE" },
+  { id: 378, name: "PAREXLANKO 626 SILICONE CARRELEUR GRIS", unit: "PIECE", price: 7.5, stock: 20.0, minStock: 0, category: "PARE" },
+  { id: 379, name: "PAREXLANKO COLLE EPOXY 5KG BIANCO", unit: "PIECE", price: 19.9, stock: 0, minStock: 0, category: "PARE" },
+  { id: 380, name: "PAREXLANKO COLLE EPOXY 5KG GRIS", unit: "PIECE", price: 19.9, stock: 2.0, minStock: 0, category: "PARE" },
+  { id: 381, name: "PAREXLANKO PERFECT CLEAN NETTOYANT EPOXY 1LT", unit: "PIECE", price: 28.5, stock: 15.0, minStock: 0, category: "PARE" },
+  { id: 382, name: "Patagonia 300x200 Ep 2cm", unit: "m2", price: 200.0, stock: 12.0, minStock: 0, category: "MARB" },
+  { id: 383, name: "PCI DURAPOX NT PLUS BIANCO ANTICO 5 KG", unit: "PIECE", price: 19.9, stock: 12.0, minStock: 0, category: "PCID" },
+  { id: 384, name: "PERIMETRE DECABIO 20L", unit: "PIECE", price: 0.0, stock: 5.0, minStock: 0, category: "PERD" },
+  { id: 385, name: "PERIMETRE DECAP TP 20L", unit: "PIECE", price: 0.0, stock: 5.0, minStock: 0, category: "PERD" },
+  { id: 386, name: "PERIMETRE SPEC N SEL 10KG", unit: "PIECE", price: 285.0, stock: 27.0, minStock: 0, category: "PERS" },
+  { id: 387, name: "PIERRE MOLEANONS FLAMMEE 60 x 12 x 5", unit: "m2", price: 226.0, stock: 0, minStock: 0, category: "NIMX" },
+  { id: 388, name: "PIETRA ROSA LESSINIA ROSA GRIFFEE MACHINE", unit: "m2", price: 35.0, stock: 0, minStock: 0, category: "GUAR" },
+  { id: 389, name: "PISTOLET SILICONE", unit: "PIECE", price: 35.0, stock: 7.0, minStock: 0, category: "RAIM" },
+  { id: 390, name: "Plan de banc en Biancone Musicco 80*37*8 chant long éclaté", unit: "PIECE", price: 195.0, stock: 0, minStock: 0, category: "MUSB" },
+  { id: 391, name: "PLAQUE BIANCONE 150*90 MM GRAVE", unit: "PIECE", price: 3200.0, stock: 0, minStock: 0, category: "BIAN" },
+  { id: 392, name: "Plinthe en marbre noir 10*2", unit: "ml", price: 43.08, stock: 0, minStock: 0, category: "PLIN" },
+  { id: 393, name: "Plots système Buzon", unit: "PIECE", price: 3.8, stock: 0, minStock: 0, category: "BUZO" },
+  { id: 394, name: "Plus value", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "PLUS" },
+  { id: 395, name: "pose cuisine", unit: "Heures", price: 192.31, stock: 0, minStock: 0, category: "POSE" },
+  { id: 396, name: "Pose de carrelage au sol, pose à la colle C2TE", unit: "m2", price: 35.07, stock: 0, minStock: 0, category: "POSS" },
+  { id: 397, name: "Pose de couvertine courbe", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "P/CO" },
+  { id: 398, name: "Pose de couvertine droite", unit: "nan", price: 76.92, stock: 0, minStock: 0, category: "P/CO" },
+  { id: 399, name: "POSE DE DALLAGE EP.3", unit: "m2", price: 192.31, stock: 0, minStock: 0, category: "POSE" },
+  { id: 400, name: "Pose de Marbre", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "POSE" },
+  { id: 401, name: "Pose de Marbre à l'ensemble", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "POSE" },
+  { id: 402, name: "POSE DE MARBRE AU ML", unit: "ml", price: 0.0, stock: 0, minStock: 0, category: "POSE" },
+  { id: 403, name: "Pose de plinthe en marbre", unit: "nan", price: 0.0, stock: 0, minStock: 0, category: "POSE" },
+  { id: 404, name: "POSE DE PLINTHE EN MARBRE", unit: "ml", price: 53.85, stock: 0, minStock: 0, category: "PLIN" },
+  { id: 405, name: "Pose de plinthe en marbre H10", unit: "nan", price: 43.08, stock: 0, minStock: 0, category: "POSE" },
+  { id: 406, name: "Pose de revêtement mural très grands formats, pose à la colle C2S1", unit: "m2", price: 105.07, stock: 0, minStock: 0, category: "POSM" },
+  { id: 407, name: "POSE STANDARD", unit: "nan", price: 0.0, stock: 0, minStock: 0, category: "POSE" },
+  { id: 408, name: "PROGRESS PROFILES 041/S/90 H10 2.5M ALU", unit: "ml", price: 5.6, stock: 40.5, minStock: 0, category: "PROP" },
+  { id: 409, name: "PROGRESS PROFILES 043/S/90 H125 2.5M ALU", unit: "ml", price: 5.6, stock: 77.5, minStock: 0, category: "PROP" },
+  { id: 410, name: "PROGRESS PROFILES 13GL h8x45 2.5M GRIS PVC (J.D)", unit: "ml", price: 5.6, stock: 32.5, minStock: 0, category: "PROP" },
+  { id: 411, name: "PROGRESS PROFILES 252A/01-01 h10 2.7M BIANCO PVC", unit: "ml", price: 3.5, stock: 30.0, minStock: 0, category: "PROP" },
+  { id: 412, name: "PROGRESS PROFILES C512GL 2.5M (J.D)", unit: "ml", price: 3.5, stock: 175.0, minStock: 0, category: "PROC" },
+  { id: 413, name: "PROGRESS PROFILES C515 A/A h10 2.5M AVORIO PVC (J.D)", unit: "ml", price: 5.6, stock: 57.5, minStock: 0, category: "PROP" },
+  { id: 414, name: "PROGRESS PROFILES C518 H15MM 2.5M (J.D)", unit: "ml", price: 3.5, stock: 230.0, minStock: 0, category: "PROC" },
+  { id: 415, name: "PROGRESS PROFILES PCRAA269 h9 2.7 PROCOVER ALU", unit: "ml", price: 5.6, stock: 37.8, minStock: 0, category: "PROP" },
+  { id: 416, name: "PROGRESS PROFILES PDAN08 h8 2.7M ALU", unit: "ml", price: 5.6, stock: 5.4, minStock: 0, category: "PROP" },
+  { id: 417, name: "PROGRESS PROFILES PDAN10 h10 2.7M ALU NAT", unit: "ml", price: 5.6, stock: 56.7, minStock: 0, category: "PROP" },
+  { id: 418, name: "PROGRESS PROFILES PJ10-01 h10 2.7M BIANCO PVC", unit: "ml", price: 3.5, stock: 62.1, minStock: 0, category: "PROP" },
+  { id: 419, name: "PROGRESS PROFILES PJ10-01 h10 2.7M PVC BIANCO", unit: "ml", price: 3.5, stock: 0, minStock: 0, category: "PROP" },
+  { id: 420, name: "PROGRESS PROFILES PJ10-12 PROJOLLY 2.7M PVC", unit: "ml", price: 3.5, stock: 40.5, minStock: 0, category: "PROP" },
+  { id: 421, name: "PROGRESS PROFILES PJAA10 h10 2.7M ALU ARG", unit: "ml", price: 5.6, stock: 27.0, minStock: 0, category: "PROP" },
+  { id: 422, name: "PROGRESS PROFILES PJNS10 h10 2.7M NOIR BROSSE", unit: "ml", price: 5.6, stock: 24.3, minStock: 0, category: "PROP" },
+  { id: 423, name: "PROGRESS PROFILES PJOTAC10 h10 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 40.5, minStock: 0, category: "PROP" },
+  { id: 424, name: "PROGRESS PROFILES PJQAA08 h8 2.7M ALU ARG", unit: "ml", price: 5.6, stock: 270.0, minStock: 0, category: "PROP" },
+  { id: 425, name: "PROGRESS PROFILES PJQBC10 h10 2.7M ALU CRH", unit: "ml", price: 5.6, stock: 16.2, minStock: 0, category: "PROP" },
+  { id: 426, name: "PROGRESS PROFILES PJQOC06 h6 2.7M PROJOLLY SQUARE LAIT CROM", unit: "ml", price: 5.6, stock: 8.1, minStock: 0, category: "PROP" },
+  { id: 427, name: "PROGRESS PROFILES PJQOC10 PROJOLLY SQUARE h10 2.7M LAIT CROM", unit: "ml", price: 5.6, stock: 21.6, minStock: 0, category: "PROP" },
+  { id: 428, name: "PROGRESS PROFILES PJQSACS h15 INOX BROSSE", unit: "ml", price: 5.6, stock: 121.5, minStock: 0, category: "PROP" },
+  { id: 429, name: "PROGRESS PROFILES PJQSACS08 h8 2.7M INOX SAT", unit: "ml", price: 5.6, stock: 27.0, minStock: 0, category: "PROP" },
+  { id: 430, name: "PROGRESS PROFILES PJQSACS10 h10 2.7M INOX SAT", unit: "ml", price: 5.6, stock: 18.9, minStock: 0, category: "PROP" },
+  { id: 431, name: "PROGRESS PROFILES PJQSBC10 h10 2.7M ALU CRH", unit: "ml", price: 5.6, stock: 16.2, minStock: 0, category: "PROP" },
+  { id: 432, name: "PROGRESS PROFILES PJQSBO10 h10 2.7M LAITON", unit: "ml", price: 5.6, stock: 8.1, minStock: 0, category: "PROP" },
+  { id: 433, name: "PROGRESS PROFILES PJQSBS11 h11 2.7M ALU BROSSE", unit: "ml", price: 5.6, stock: 162.0, minStock: 0, category: "PROP" },
+  { id: 434, name: "PROGRESS PROFILES PJQT08-03 h8 GRIS CEM PVC", unit: "ml", price: 3.5, stock: 51.3, minStock: 0, category: "PROP" },
+  { id: 435, name: "PROGRESS PROFILES PJQTAC08 h8 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 232.2, minStock: 0, category: "PROP" },
+  { id: 436, name: "PROGRESS PROFILES PKCLAC10 h10 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 89.1, minStock: 0, category: "PROP" },
+  { id: 437, name: "PROGRESS PROFILES PRFAN h125 2.7M ALU", unit: "ml", price: 5.6, stock: 40.5, minStock: 0, category: "PROP" },
+  { id: 438, name: "PROGRESS PROFILES PTAA10 PROTERMINAL h10 ALU 2.7M", unit: "ml", price: 5.6, stock: 2.7, minStock: 0, category: "PROP" },
+  { id: 439, name: "PROGRESS PROFILES PTAA11 PROTERMINAL h11 ALU 2.7M", unit: "ml", price: 5.6, stock: 448.2, minStock: 0, category: "PROP" },
+  { id: 440, name: "PROGRESS PROFILES PTAC045 h4.5 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 224.1, minStock: 0, category: "PROP" },
+  { id: 441, name: "PROGRESS PROFILES PTAC06 h6 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 91.8, minStock: 0, category: "PROP" },
+  { id: 442, name: "PROGRESS PROFILES PTAC08 h8 2.7M INOX POLI", unit: "ml", price: 5.6, stock: 224.1, minStock: 0, category: "PROP" },
+  { id: 443, name: "PROGRESS PROFILES PTAN08 h8  2.7M ALU NAT", unit: "ml", price: 5.6, stock: 43.2, minStock: 0, category: "PROP" },
+  { id: 444, name: "PROGRESS PROFILES PTAN11 h11 2.7M ALU NAT", unit: "ml", price: 5.6, stock: 51.3, minStock: 0, category: "PROP" },
+  { id: 445, name: "PROGRESS PROFILES PTBC06 h06 2.7M ALU CRH", unit: "ml", price: 5.6, stock: 13.5, minStock: 0, category: "PROP" },
+  { id: 446, name: "PROGRESS PROFILES PTBC10 h10 2.7M ALU CRH", unit: "ml", price: 5.6, stock: 27.0, minStock: 0, category: "PROP" },
+  { id: 447, name: "PROGRESS PROFILES PTOC125 h125 2.7M LAITON POLI", unit: "ml", price: 13.0, stock: 97.2, minStock: 0, category: "PROP" },
+  { id: 448, name: "PROGRESS PROFILES PTON10 h10 2.7M LAITON", unit: "ml", price: 13.0, stock: 40.5, minStock: 0, category: "PROP" },
+  { id: 449, name: "PRONTO MASSETTO MIX RAPID 25KG", unit: "sac", price: 9.34, stock: 0, minStock: 0, category: "PRON" },
+  { id: 450, name: "PROTECTION  ALVEOLAIRE 240X120 NOIR", unit: "m2", price: 1.95, stock: 369.0, minStock: 0, category: "PPAL" },
+  { id: 451, name: "RAGREAGE NC 133 P3 25KG", unit: "sac", price: 0.0, stock: 7.0, minStock: 0, category: "RAGR" },
+  { id: 452, name: "RAIMONDI  VITE  100 PIECES", unit: "sac", price: 14.2, stock: 14.0, minStock: 0, category: "RAIM" },
+  { id: 453, name: "RAIMONDI BASE RLS HD  H3-12MM 1.5MM 250 PIECES", unit: "sac", price: 10.9, stock: 0, minStock: 0, category: "RAIM" },
+  { id: 454, name: "RAIMONDI BASE RLS HIGH  H12-20MM 1.5MM 200 PIECES", unit: "sac", price: 10.9, stock: 27.0, minStock: 0, category: "RAIM" },
+  { id: 455, name: "RAIMONDI BASE VITE RLS  H14-26MM 1MM 100 PIECES", unit: "sac", price: 5.7, stock: 105.0, minStock: 0, category: "RAIM" },
+  { id: 456, name: "RAIMONDI CROISILLONS CARRELAGE 1mm SAC 1000", unit: "PIECE", price: 3.5, stock: 0, minStock: 0, category: "RAIM" },
+  { id: 457, name: "RAIMONDI CROISILLONS CARRELAGE 1mm SAC 200", unit: "PIECE", price: 1.4, stock: 65.0, minStock: 0, category: "RAIM" },
+  { id: 458, name: "RAIMONDI CROISILLONS CARRELAGE 2mm SAC 500", unit: "PIECE", price: 2.3, stock: 32.0, minStock: 0, category: "RAIM" },
+  { id: 459, name: "RAIMONDI CROISILLONS CARRELAGE 3mm SAC 500", unit: "PIECE", price: 3.5, stock: 32.0, minStock: 0, category: "RAIM" },
+  { id: 460, name: "RAIMONDI CROISILLONS CARRELAGE 5mm SAC 500", unit: "PIECE", price: 3.5, stock: 30.0, minStock: 0, category: "RAIM" },
+  { id: 461, name: "RAIMONDI CUNEO 100 PIECES", unit: "sac", price: 7.0, stock: 0, minStock: 0, category: "RAIM" },
+  { id: 462, name: "RAIMONDI EPONGE BLANC STRIP", unit: "PIECE", price: 4.8, stock: 49.0, minStock: 0, category: "RAIM" },
+  { id: 463, name: "RAIMONDI EPONGE KITTY", unit: "PIECE", price: 1.72, stock: 30.0, minStock: 0, category: "RAIM" },
+  { id: 464, name: "RAIMONDI EPONGE PLATE 13X30", unit: "PIECE", price: 5.52, stock: 0, minStock: 0, category: "RAIM" },
+  { id: 465, name: "RAIMONDI POIGNÉE X ÉPONGE", unit: "PIECE", price: 3.51, stock: 3.0, minStock: 0, category: "RAIM" },
+  { id: 466, name: "RAIMONDI RLS PINZA PER PAVIMENTO", unit: "sac", price: 25.0, stock: 4.0, minStock: 0, category: "RAIM" },
+  { id: 467, name: "REALISATION DE CHAPE TRADI", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "CHAP" },
+  { id: 468, name: "REFIN 150X25 imitation parquet", unit: "m2", price: 0.0, stock: 14.37, minStock: 0, category: "REFI" },
+  { id: 469, name: "REFIN 45X45 BRICKLANE BEIGE", unit: "m2", price: 10.0, stock: 26.12, minStock: 0, category: "REFI" },
+  { id: 470, name: "REFIN 45X45 BRICKLANE BEIGE LIGHT", unit: "m2", price: 10.0, stock: 72.89, minStock: 0, category: "REFI" },
+  { id: 471, name: "REFIN 60X60 BRICKLANE BEIGE", unit: "m2", price: 10.0, stock: 146.8, minStock: 0, category: "REFI" },
+  { id: 472, name: "REGLE Aluminium 2ML", unit: "PIECE", price: 27.0, stock: 0, minStock: 0, category: "NONA" },
+  { id: 473, name: "REGLE Aluminium 3ML", unit: "PIECE", price: 38.79, stock: 0, minStock: 0, category: "NONA" },
+  { id: 474, name: "REVIGLASS MOSAIQUE 2.5*2.5 NOIR", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "REVG" },
+  { id: 475, name: "REVIGLASS MOSAIQUE AQUARELA 2.5*2.5", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "REVG" },
+  { id: 476, name: "Rosa Perlino 280x195  Ep 3cm", unit: "m2", price: 200.0, stock: 4.2, minStock: 0, category: "MARB" },
+  { id: 477, name: "Rosa Portugal  250x120 Ep 3cm", unit: "m2", price: 200.0, stock: 12.0, minStock: 0, category: "MARB" },
+  { id: 478, name: "Rosso Alicante 320x170 Ep 2cm", unit: "m2", price: 200.0, stock: 10.8, minStock: 0, category: "MARB" },
+  { id: 479, name: "SAINT GOBAIN MOLDA", unit: "sac", price: 0.0, stock: 4.0, minStock: 0, category: "SAIN" },
+  { id: 480, name: "SALONI PROYECCION 30*60 MARFIL", unit: "m2", price: 15.75, stock: 0, minStock: 0, category: "SAL3" },
+  { id: 481, name: "SALONI SERIE PROYECCION 30*60 MARFIL", unit: "m2", price: 15.75, stock: 0, minStock: 0, category: "SAL6" },
+  { id: 482, name: "SANIT 20X20 BLANCO MATE", unit: "m2", price: 10.0, stock: 25.2, minStock: 0, category: "SANI" },
+  { id: 483, name: "SCHLUTER ALU A110ACGB 2.5M", unit: "ml", price: 7.57, stock: 35.0, minStock: 0, category: "SCHL" },
+  { id: 484, name: "SCHLUTER INOX TREP-E TE80 2.50 m", unit: "ml", price: 13.82, stock: 0, minStock: 0, category: "SCHS" },
+  { id: 485, name: "SCHLUTER INOX TREP-G GSEB110GS  2.50 m", unit: "ml", price: 23.82, stock: 130.0, minStock: 0, category: "SCHS" },
+  { id: 486, name: "SCHLUTER PVC BWS80SG h08 2.5M (J.F)", unit: "ml", price: 4.7, stock: 0, minStock: 0, category: "SCHS" },
+  { id: 487, name: "SCHLUTER SYSTEM  A45BW  h4.5  2.50 m ALU BIANCO", unit: "ml", price: 7.57, stock: 332.5, minStock: 0, category: "SCHS" },
+  { id: 488, name: "SCHLUTER SYSTEM  AE45BW  h4.5  2.50 m ALU BIANCO", unit: "ml", price: 7.57, stock: 0, minStock: 0, category: "SCHS" },
+  { id: 489, name: "SCHLUTER SYSTEM  E45  h4.5  2.50 m ALU BIANCO", unit: "ml", price: 7.57, stock: 0, minStock: 0, category: "SCHS" },
+  { id: 490, name: "SCHLUTER SYSTEM A80TSG h8 2.5M ALU", unit: "ml", price: 7.57, stock: 30.0, minStock: 0, category: "SCHS" },
+  { id: 491, name: "SCHLUTER SYSTEM AE80  h8 2.50 m ALU", unit: "ml", price: 7.57, stock: 22.5, minStock: 0, category: "SCHS" },
+  { id: 492, name: "SCHLUTER SYSTEM AE90  h9  2.5m ALU", unit: "ml", price: 7.57, stock: 30.0, minStock: 0, category: "SCHS" },
+  { id: 493, name: "SCHLUTER SYSTEM AEBS80 h08 2.5M ALU", unit: "ml", price: 7.57, stock: 37.5, minStock: 0, category: "SCHS" },
+  { id: 494, name: "SCHLUTER SYSTEM BWS100BW h10 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 47.5, minStock: 0, category: "SCHS" },
+  { id: 495, name: "SCHLUTER SYSTEM BWS100FG h10 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 187.5, minStock: 0, category: "SCHS" },
+  { id: 496, name: "SCHLUTER SYSTEM BWS100GS h10 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 80.0, minStock: 0, category: "SCHS" },
+  { id: 497, name: "SCHLUTER SYSTEM BWS100HB h10 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 122.5, minStock: 0, category: "SCHS" },
+  { id: 498, name: "SCHLUTER SYSTEM BWS100PG h10 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 110.0, minStock: 0, category: "SCHS" },
+  { id: 499, name: "SCHLUTER SYSTEM BWS125GS h12.5 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 62.5, minStock: 0, category: "SCHS" },
+  { id: 500, name: "SCHLUTER SYSTEM BWS125HB h12.5 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 20.0, minStock: 0, category: "SCHS" },
+  { id: 501, name: "SCHLUTER SYSTEM BWS125SP h12.5 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 25.0, minStock: 0, category: "SCHS" },
+  { id: 502, name: "SCHLUTER SYSTEM BWS80PG h08 2.5M PVC (J.F)", unit: "ml", price: 4.7, stock: 65.0, minStock: 0, category: "SCHS" },
+  { id: 503, name: "SCHLUTER SYSTEM DILEX HKSV44U12 2.5M", unit: "ml", price: 13.5, stock: 52.5, minStock: 0, category: "SCHS" },
+  { id: 504, name: "SCHLUTER SYSTEM INOX  E125  h12.5  2.50 m", unit: "ml", price: 7.57, stock: 112.5, minStock: 0, category: "SCHS" },
+  { id: 505, name: "SCHLUTER SYSTEM INOX  E80 H8 2.50 m", unit: "ml", price: 7.57, stock: 50.0, minStock: 0, category: "SCHS" },
+  { id: 506, name: "SCHLUTER SYSTEM J100AE  h10 2.5M ALU", unit: "ml", price: 7.57, stock: 80.0, minStock: 0, category: "SCHS" },
+  { id: 507, name: "SCHLUTER SYSTEM J100EB h10 2.50 m", unit: "ml", price: 7.57, stock: 47.5, minStock: 0, category: "SCHS" },
+  { id: 508, name: "SCHLUTER SYSTEM Q100EB h10 2.50 m", unit: "ml", price: 7.57, stock: 47.5, minStock: 0, category: "SCHS" },
+  { id: 509, name: "SCHLUTER SYSTEM Q100TSC  h10 2.5m ALU", unit: "ml", price: 7.57, stock: 65.0, minStock: 0, category: "SCHS" },
+  { id: 510, name: "SCHLUTER SYSTEM Q80ACGB h08 2.5M ALU", unit: "ml", price: 7.57, stock: 175.0, minStock: 0, category: "SCHS" },
+  { id: 511, name: "SCHLUTER SYSTEM TREP PL90AE h9  2.5M ALU", unit: "ml", price: 13.82, stock: 25.0, minStock: 0, category: "SCHS" },
+  { id: 512, name: "SCIE CLOCHE Diamantée D100", unit: "PIECE", price: 215.0, stock: 3.0, minStock: 0, category: "EL00" },
+  { id: 513, name: "SCIE CLOCHE Diamantée D12", unit: "PIECE", price: 15.35, stock: 0, minStock: 0, category: "EL00" },
+  { id: 514, name: "SCIE CLOCHE Diamantée D20", unit: "PIECE", price: 15.35, stock: 4.0, minStock: 0, category: "EL00" },
+  { id: 515, name: "SCIE CLOCHE Diamantée D25", unit: "PIECE", price: 16.31, stock: 7.0, minStock: 0, category: "EL00" },
+  { id: 516, name: "SCIE CLOCHE Diamantée D30", unit: "PIECE", price: 17.27, stock: 7.0, minStock: 0, category: "EL00" },
+  { id: 517, name: "SCIE CLOCHE Diamantée D35", unit: "PIECE", price: 21.11, stock: 4.0, minStock: 0, category: "EL00" },
+  { id: 518, name: "SCIE CLOCHE Diamantée D40", unit: "PIECE", price: 33.97, stock: 6.0, minStock: 0, category: "EL00" },
+  { id: 519, name: "SCIE CLOCHE Diamantée D45", unit: "PIECE", price: 37.97, stock: 4.0, minStock: 0, category: "EL00" },
+  { id: 520, name: "SCIE CLOCHE Diamantée D50", unit: "PIECE", price: 29.75, stock: 5.0, minStock: 0, category: "EL00" },
+  { id: 521, name: "SCIE CLOCHE Diamantée D60", unit: "PIECE", price: 35.51, stock: 6.0, minStock: 0, category: "EL00" },
+  { id: 522, name: "SCIE CLOCHE Diamantée D68", unit: "PIECE", price: 116.0, stock: 0, minStock: 0, category: "EL00" },
+  { id: 523, name: "SCIE CLOCHE Diamantée D70", unit: "PIECE", price: 41.26, stock: 6.0, minStock: 0, category: "EL00" },
+  { id: 524, name: "SEUILS EN CARRARE C - 1.80 ML", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "MTSE" },
+  { id: 525, name: "SICHENIA 30X60 GRIS SOFT GRIP", unit: "m2", price: 0.0, stock: 41.0, minStock: 0, category: "SICH" },
+  { id: 526, name: "SIKA HYFLEX 160 CONSTRUCTION", unit: "PIECE", price: 13.0, stock: 36.0, minStock: 0, category: "SIKA" },
+  { id: 527, name: "SIKA SILICONE SIKASEAL PISCINE 163 BLANC", unit: "PIECE", price: 13.0, stock: 6.0, minStock: 0, category: "SIKA" },
+  { id: 528, name: "SIKA TOP PROTECTION 107 20KG", unit: "sac", price: 0.0, stock: 9.0, minStock: 0, category: "SIKA" },
+  { id: 529, name: "SIKA TOP PROTECTION 107 5KG", unit: "sac", price: 0.0, stock: 8.0, minStock: 0, category: "SIKA" },
+  { id: 530, name: "SIKALATEX 360 BIDON 20L", unit: "PIECE", price: 169.95, stock: 1.0, minStock: 0, category: "SIKA" },
+  { id: 531, name: "SIPLAST ASSOUR 20 CHAPE 20M2", unit: "PIECE", price: 54.86, stock: 28.0, minStock: 0, category: "SIPA" },
+  { id: 532, name: "SIPLAST ASSOUR 22 CONFORT 20M2", unit: "PIECE", price: 54.86, stock: 57.0, minStock: 0, category: "SIPA" },
+  { id: 533, name: "Sous-traitant chape fluide", unit: "m2", price: 25.0, stock: 0, minStock: 0, category: "SSTC" },
+  { id: 534, name: "Sous-traitant chape traditionnelle", unit: "m2", price: 25.0, stock: 0, minStock: 0, category: "SSTC" },
+  { id: 535, name: "Sous-traitant dalles sur plots", unit: "m2", price: 40.0, stock: 0, minStock: 0, category: "SSTD" },
+  { id: 536, name: "Sous-traitant forfait heure", unit: "Heures", price: 0.0, stock: 0, minStock: 0, category: "SSTF" },
+  { id: 537, name: "Sous-traitant forfait journée", unit: "Jours", price: 0.0, stock: 0, minStock: 0, category: "SSTF" },
+  { id: 538, name: "Sous-traitant joint époxy", unit: "m2", price: 10.0, stock: 0, minStock: 0, category: "SSTJ" },
+  { id: 539, name: "Sous-traitant phonique", unit: "m2", price: 2.0, stock: 0, minStock: 0, category: "SSTI" },
+  { id: 540, name: "Sous-traitant pose de plinthes", unit: "ml", price: 8.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 541, name: "Sous-traitant pose murale à la colle < 60x60", unit: "m2", price: 30.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 542, name: "Sous-traitant pose murale à la colle de 100x100 à 120x120", unit: "m2", price: 55.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 543, name: "Sous-traitant pose murale à la colle de 60x60 à 90x90", unit: "m2", price: 45.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 544, name: "Sous-traitant pose murale à la colle de très grands formats", unit: "m2", price: 100.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 545, name: "Sous-traitant pose sol à la colle < 60x60", unit: "m2", price: 30.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 546, name: "Sous-traitant pose sol à la colle de 100x100 à 120x120", unit: "m2", price: 55.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 547, name: "Sous-traitant pose sol à la colle de 60x60 à 90x90", unit: "m2", price: 45.0, stock: 0, minStock: 0, category: "SSTP" },
+  { id: 548, name: "Sous-traitant SPEC", unit: "m2", price: 5.0, stock: 0, minStock: 0, category: "SSTE" },
+  { id: 549, name: "Sous-traitant thermique", unit: "m2", price: 5.0, stock: 0, minStock: 0, category: "SSTI" },
+  { id: 550, name: "TAILLE DE PIERRE FACADE", unit: "ENS", price: 211.54, stock: 0, minStock: 0, category: "TAIL" },
+  { id: 551, name: "Trani 260x110 Ep 2cm", unit: "m2", price: 200.0, stock: 57.2, minStock: 0, category: "MARB" },
+  { id: 552, name: "Trani 260x150 Ep 3cm", unit: "m2", price: 200.0, stock: 23.4, minStock: 0, category: "MARB" },
+  { id: 553, name: "Trani Bocciardato 290x170 Ep 3cm", unit: "m2", price: 200.0, stock: 44.3, minStock: 0, category: "MARB" },
+  { id: 554, name: "Transport", unit: "nan", price: 0.0, stock: 0, minStock: 0, category: "TRAN" },
+  { id: 555, name: "Transport et livraison sur chantier", unit: "ENS", price: 0.0, stock: 0, minStock: 0, category: "PORT" },
+  { id: 556, name: "travaux divers m²", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "MODI" },
+  { id: 557, name: "Travertin Navona 290x160 Ep 3cm", unit: "m2", price: 200.0, stock: 23.2, minStock: 0, category: "MARB" },
+  { id: 558, name: "Travertin Romain 280x180 Ep 2cm", unit: "m2", price: 200.0, stock: 90.7, minStock: 0, category: "MARB" },
+  { id: 559, name: "Travertin Romain 300x110 Ep 3cm", unit: "m2", price: 200.0, stock: 39.6, minStock: 0, category: "MARB" },
+  { id: 560, name: "Travertin Scabras 290x70 Ep 3cm", unit: "m2", price: 200.0, stock: 18.3, minStock: 0, category: "MARB" },
+  { id: 561, name: "Tundra Grey 300x180 Ep 2cm", unit: "m2", price: 200.0, stock: 16.2, minStock: 0, category: "MARB" },
+  { id: 562, name: "ULTRA COLOR PLUS 100 20KG", unit: "sac", price: 30.68, stock: 15.0, minStock: 0, category: "MAPE" },
+  { id: 563, name: "ULTRA COLOR PLUS 102 5KG", unit: "sac", price: 13.0, stock: 16.0, minStock: 0, category: "MAPE" },
+  { id: 564, name: "ULTRA COLOR PLUS 103 BLANC LUNE 5KG", unit: "sac", price: 13.25, stock: 20.0, minStock: 0, category: "MAPE" },
+  { id: 565, name: "ULTRA COLOR PLUS 110 25KG", unit: "sac", price: 57.0, stock: 28.0, minStock: 0, category: "MAPE" },
+  { id: 566, name: "ULTRA COLOR PLUS 111 25KG", unit: "sac", price: 52.0, stock: 14.0, minStock: 0, category: "MAPE" },
+  { id: 567, name: "ULTRA COLOR PLUS 112 25KG", unit: "sac", price: 57.0, stock: 5.0, minStock: 0, category: "MAPE" },
+  { id: 568, name: "ULTRA COLOR PLUS 113 25KG", unit: "sac", price: 30.0, stock: 4.0, minStock: 0, category: "MAPE" },
+  { id: 569, name: "ULTRA COLOR PLUS 114 25KG", unit: "sac", price: 57.0, stock: 1.0, minStock: 0, category: "MAPE" },
+  { id: 570, name: "ULTRA COLOR PLUS 119 5KG", unit: "sac", price: 13.0, stock: 5.0, minStock: 0, category: "MAPE" },
+  { id: 571, name: "ULTRA COLOR PLUS 120 25KG", unit: "sac", price: 54.0, stock: 3.0, minStock: 0, category: "MAPE" },
+  { id: 572, name: "ULTRA COLOR PLUS 123 5KG", unit: "sac", price: 13.25, stock: 24.0, minStock: 0, category: "MAPE" },
+  { id: 573, name: "ULTRA COLOR PLUS 130 25KG", unit: "sac", price: 46.11, stock: 59.0, minStock: 0, category: "MAPE" },
+  { id: 574, name: "ULTRA COLOR PLUS 132  BEIGE 5KG", unit: "sac", price: 13.0, stock: 20.0, minStock: 0, category: "MAPE" },
+  { id: 575, name: "ULTRA COLOR PLUS 133 5KG", unit: "sac", price: 13.0, stock: 21.0, minStock: 0, category: "MAPE" },
+  { id: 576, name: "ULTRA COLOR PLUS 135 5KG", unit: "sac", price: 13.0, stock: 4.0, minStock: 0, category: "MAPE" },
+  { id: 577, name: "ULTRA COLOR PLUS 136 5KG", unit: "sac", price: 13.0, stock: 22.0, minStock: 0, category: "MAPE" },
+  { id: 578, name: "ULTRA COLOR PLUS 145 5KG", unit: "sac", price: 13.0, stock: 1.0, minStock: 0, category: "MAPE" },
+  { id: 579, name: "ULTRA COLOR PLUS 187 5KG", unit: "sac", price: 13.0, stock: 20.0, minStock: 0, category: "MAPE" },
+  { id: 580, name: "ULTRA COLOR PLUS 188 5KG", unit: "sac", price: 13.25, stock: 19.0, minStock: 0, category: "MAPE" },
+  { id: 581, name: "Verde Alpi 270x160 Ep 3cm", unit: "m2", price: 200.0, stock: 17.28, minStock: 0, category: "MARB" },
+  { id: 582, name: "Verde Dorato 280x180 Ep 2cm", unit: "m2", price: 200.0, stock: 20.16, minStock: 0, category: "MARB" },
+  { id: 583, name: "Verde Guatemala 300x190 Ep 2cm", unit: "m2", price: 200.0, stock: 34.2, minStock: 0, category: "MARB" },
+  { id: 584, name: "WEBER COL FLEX BLANC 25 KG", unit: "sac", price: 0.0, stock: 20.0, minStock: 0, category: "WEBE" },
+  { id: 585, name: "WEBER COL FLEX GRIS 25 KG", unit: "sac", price: 0.0, stock: 16.0, minStock: 0, category: "WEBE" },
+  { id: 586, name: "WEBER JOINT LARGE GRIS GRANIT 25KG", unit: "sac", price: 0.0, stock: 4.0, minStock: 0, category: "WEBE" },
+  { id: 587, name: "WEBER NETTOYANT EPOXY 1LT", unit: "BIDON", price: 28.5, stock: 28.0, minStock: 0, category: "WEBE" },
+  { id: 588, name: "WEBER PRIMAIRE 5KG", unit: "BIDON", price: 83.6, stock: 0, minStock: 0, category: "WEBE" },
+  { id: 589, name: "WINCKELMANS 10x10 GROUPE BLA COULEUR BAU", unit: "m2", price: 0.0, stock: 0, minStock: 0, category: "WINC" },
+  { id: 590, name: "WURTH MASTIC COLLE PU 40 BLANC", unit: "PIECE", price: 4.35, stock: 38.0, minStock: 0, category: "WURT" }
+];;
 var INIT_CHANTIERS = [
   { id: 1, name: "Residence Le Soleil", address: "12 Bd Princess Grace, Monaco", client: "SCI Monaco", status: "en_cours", budget: 850000, startDate: "2024-01-15", endDate: "2024-12-31" },
   { id: 2, name: "Villa Azur", address: "8 Av de Grande Bretagne, Monaco", client: "M. Dupont", status: "en_cours", budget: 320000, startDate: "2024-03-01", endDate: "2024-09-30" },
@@ -101,6 +686,7 @@ var INIT_DELIVERIES = [
   { id: 2, chantierId: "2", date: "2024-11-12", heure: "", products: [{ productId: 4, qty: 200, unite: "unite" }], status: "livre", bon: "BL-2024-002", notes: "", createdBy: "Admin CAREMA" },
 ];
 var INIT_DEVIS = [];
+var INIT_RETRAITS = [];
 
 var UNITS = ["unite", "palette", "m3", "m2", "ml", "kg", "tonne", "sac 25kg", "sac 50kg", "barre 6m", "litre", "bidon", "rouleau", "boite"];
 
@@ -127,13 +713,13 @@ var SC = {
   en_cours: "#22c55e", termine: "#6b7280", suspendu: "#f59e0b",
   brouillon: "#94a3b8", envoye: "#3b82f6", accepte: "#22c55e", refuse: "#ef4444",
   en_attente: "#f59e0b", en_route: "#8b5cf6", livre: "#22c55e", annule: "#ef4444",
-  validee: "#3b82f6", recue: "#22c55e", annulee: "#ef4444",
+  validee: "#3b82f6", recue: "#22c55e", annulee: "#ef4444", retire: "#22c55e",
 };
 var SL = {
   en_cours: "En cours", termine: "Termine", suspendu: "Suspendu",
   brouillon: "Brouillon", envoye: "Envoye", accepte: "Accepte", refuse: "Refuse",
   en_attente: "En attente", en_route: "En route", livre: "Livre", annule: "Annule",
-  validee: "Validee", recue: "Recue en entrepot", annulee: "Annulee",
+  validee: "Validee", recue: "Recue en entrepot", annulee: "Annulee", retire: "Retire",
 };
 
 function uid() { return String(Date.now()) + Math.random().toString(36).slice(2); }
@@ -267,6 +853,7 @@ var NAVITEMS = [
   { key: "devis",      label: "Devis",             icon: "📋", managersOnly: true },
   { key: "stock",      label: "Stock entrepot",   icon: "🏭" },
   { key: "historique", label: "Historique",        icon: "📜" },
+  { key: "retraits",   label: "Bons de retrait",  icon: "📤" },
   { key: "produits",   label: "Produits",          icon: "🧱" },
   { key: "users",      label: "Utilisateurs",      icon: "👥", adminOnly: true },
 ];
@@ -1260,6 +1847,7 @@ function Historique(props) {
     livraisons: { label: "Livraisons",       icon: "🚚", data: props.deliveries || [] },
     chantiers:  { label: "Chantiers",        icon: "🏗️", data: props.chantiers || [] },
     devis:      { label: "Devis",            icon: "📋", data: canSeeDevis(props.user.role) ? (props.devis || []) : [] },
+    retraits:   { label: "Bons de retrait",  icon: "📤", data: props.retraits || [] },
   };
 
   function exportPdf() {
@@ -1785,6 +2373,197 @@ function Users(props) {
   );
 }
 
+
+// ─── BONS DE RETRAIT (retrait entrepôt par un client) ────────────────────────
+function Retraits(props) {
+  var [modal, setModal] = useState(false);
+  var [sel, setSel] = useState(null);
+  var [prt, setPrt] = useState(null);
+  var [lines, setLines] = useState([{ productId: "", qty: 1, unite: "unite", nomLibre: "" }]);
+  var [form, setForm] = useState({
+    clientNom: "", clientChantier: "", clientTel: "", date: new Date().toISOString().split("T")[0], notes: ""
+  });
+
+  function genBon() {
+    return "BR-" + new Date().getFullYear() + "-" + String((props.retraits || []).length + 1).padStart(3, "0");
+  }
+
+  function submit() {
+    if (!form.clientNom || lines.every(function(l) { return !l.productId && !l.nomLibre; })) return;
+    var bon = genBon();
+    var r = {
+      id: uid(), bon: bon, date: form.date,
+      clientNom: form.clientNom, clientChantier: form.clientChantier, clientTel: form.clientTel,
+      notes: form.notes,
+      products: lines.filter(function(l) { return l.productId || l.nomLibre; }).map(function(l) {
+        return { productId: l.productId ? String(l.productId) : null, nomLibre: l.nomLibre, qty: Number(l.qty), unite: l.unite };
+      }),
+      status: "retire", createdBy: props.user.name, createdAt: new Date().toLocaleString("fr-FR")
+    };
+    // Diminuer le stock si produit catalogue
+    if (props.user.role === "admin" || props.user.role === "chef_chantier") {
+      props.setProducts(function(plist) {
+        return plist.map(function(pr) {
+          var line = r.products.find(function(l) { return l.productId && String(l.productId) === String(pr.id); });
+          return line ? Object.assign({}, pr, { stock: Math.max(0, pr.stock - Number(line.qty)) }) : pr;
+        });
+      });
+    }
+    props.setRetraits(function(p) { return p.concat([r]); });
+    props.addNotif("success", "Bon de retrait cree", bon);
+    setModal(false);
+    setLines([{ productId: "", qty: 1, unite: "unite", nomLibre: "" }]);
+    setForm({ clientNom: "", clientChantier: "", clientTel: "", date: new Date().toISOString().split("T")[0], notes: "" });
+  }
+
+  function buildPrint(r) {
+    var css = "html,body{background:#fff!important;color:#1e293b!important}body{font-family:Georgia,serif;margin:32px;font-size:13px}h1{color:#1e3a8a;margin:0}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1e3a8a;color:#fff;padding:9px 10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#1e293b}tr:nth-child(even) td{background:#f8fafc}.info{background:#f0f4ff;border-left:4px solid #1e3a8a;padding:12px 16px;border-radius:0 6px 6px 0;margin:14px 0;font-size:12px}.sign{margin-top:60px;display:flex;justify-content:space-between}.signbox{text-align:center;width:200px}.signline{border-top:1px solid #1e293b;margin-top:50px;padding-top:6px;font-size:11px;color:#64748b}.footer{margin-top:30px;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px}";
+    var rows = (r.products || []).map(function(p) {
+      var pr = p.productId ? props.products.find(function(x) { return String(x.id) === String(p.productId); }) : null;
+      var nom = pr ? pr.name : (p.nomLibre || "-");
+      var unite = p.unite || (pr ? pr.unit : "");
+      return "<tr><td>" + nom + "</td><td style='text-align:center'>" + p.qty + " " + unite + "</td><td></td></tr>";
+    }).join("");
+    return "<!DOCTYPE html><html><head><meta charset='utf-8'><title>" + r.bon + "</title><style>" + css + "</style></head><body>"
+      + "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid #1e3a8a'>"
+      + "<div style='display:flex;align-items:center;gap:14px'>"
+      + "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 45' width='130' height='32'><text x='0' y='36' font-family='Georgia,serif' font-size='34' font-weight='bold' fill='#1e3a8a'>CAREMA</text></svg>"
+      + "<div style='border-left:2px solid #e2e8f0;padding-left:12px;font-size:11px;color:#64748b'>Villa Le Dome<br>4-6 rue des Lilas<br>98000 Monaco</div>"
+      + "</div>"
+      + "<div style='text-align:right'><div style='font-size:22px;font-weight:bold;color:#1e3a8a'>" + r.bon + "</div><div style='font-size:12px;color:#64748b;margin-top:4px'>Bon de retrait — " + fmtD(r.date) + "</div></div>"
+      + "</div>"
+      + "<div class='info'><strong>Client :</strong> " + r.clientNom + (r.clientChantier ? "<br><strong>Chantier / Ref :</strong> " + r.clientChantier : "") + (r.clientTel ? "<br><strong>Tel :</strong> " + r.clientTel : "") + "<br><strong>Prepare par :</strong> " + (r.createdBy || "-") + (r.notes ? "<br><strong>Notes :</strong> " + r.notes : "") + "</div>"
+      + "<table><thead><tr><th>Designation</th><th style='text-align:center'>Quantite</th><th>Observations</th></tr></thead><tbody>" + rows + "</tbody></table>"
+      + "<div class='sign'>"
+      + "<div class='signbox'><div class='signline'>Signature remettant</div></div>"
+      + "<div class='signbox'><div class='signline'>Signature client / Cachet</div></div>"
+      + "</div>"
+      + "<div class='footer'>CAREMA — Bon de retrait entrepot — " + new Date().toLocaleDateString("fr-FR") + "</div>"
+      + "</body></html>";
+  }
+
+  if (prt) return <PrintModal html={prt} onClose={function() { setPrt(null); }} />;
+
+  if (sel) {
+    var r = (props.retraits || []).find(function(x) { return x.id === sel.id; }) || sel;
+    return (
+      <div>
+        <button onClick={function() { setSel(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", fontWeight: 600, fontSize: 14, marginBottom: 16, padding: 0 }}>← Retour</button>
+        <div style={{ background: "linear-gradient(135deg,#0f172a,#1e3a8a)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <div><div style={{ fontSize: 11, opacity: 0.8 }}>Bon de retrait entrepot</div><div style={{ fontSize: 22, fontWeight: 800 }}>{r.bon}</div></div>
+            <Badge status={r.status} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Client</div><div style={{ fontWeight: 700 }}>{r.clientNom}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Chantier / Ref</div><div style={{ fontWeight: 700 }}>{r.clientChantier || "—"}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Date</div><div style={{ fontWeight: 700 }}>{fmtD(r.date)}</div></div>
+            <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px" }}><div style={{ fontSize: 11, opacity: 0.7 }}>Prepare par</div><div style={{ fontWeight: 700 }}>{r.createdBy}</div></div>
+          </div>
+          {r.clientTel && <div style={{ background: "#ffffff18", borderRadius: 10, padding: "10px 12px", marginTop: 10 }}><div style={{ fontSize: 11, opacity: 0.7 }}>Tel</div><div style={{ fontWeight: 700 }}>{r.clientTel}</div></div>}
+        </div>
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, boxShadow: "0 2px 10px #00000010" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Marchandises retirees</div>
+          {(r.products || []).map(function(p, i) {
+            var pr = p.productId ? props.products.find(function(x) { return String(x.id) === String(p.productId); }) : null;
+            return (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{pr ? pr.name : (p.nomLibre || "—")}{!pr && p.nomLibre && <span style={{ fontSize: 11, color: "#f59e0b", marginLeft: 6 }}>manuel</span>}</div>
+                <div style={{ fontWeight: 700, color: "#1e3a8a" }}>{p.qty} {p.unite || (pr ? pr.unit : "")}</div>
+              </div>
+            );
+          })}
+          {r.notes && <div style={{ marginTop: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, fontSize: 12, color: "#64748b" }}>📝 {r.notes}</div>}
+        </div>
+        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "10px 14px", marginBottom: 14, fontSize: 13 }}>
+          ✅ Cree le {r.createdAt} par {r.createdBy}
+        </div>
+        <button onClick={function() { setPrt(buildPrint(r)); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: "2px solid #1e3a8a", background: "#fff", color: "#1e3a8a", fontWeight: 700, cursor: "pointer", marginBottom: 10 }}>🖨️ Imprimer le bon de retrait</button>
+        {props.user.role === "admin" && <button onClick={function() { if (confirm("Supprimer ?")) { props.setRetraits(function(p) { return p.filter(function(x) { return x.id !== r.id; }); }); setSel(null); }}} style={{ width: "100%", padding: 10, borderRadius: 12, border: "none", background: "#fef2f2", color: "#ef4444", fontWeight: 600, cursor: "pointer" }}>🗑️ Supprimer</button>}
+      </div>
+    );
+  }
+
+  var list = props.retraits || [];
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#1e293b", margin: 0 }}>Bons de retrait</h1>
+        <Btn onClick={function() { setModal(true); }}>+ Nouveau</Btn>
+      </div>
+      <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "8px 14px", marginBottom: 14, fontSize: 12, color: "#92400e" }}>
+        📤 Un client vient retirer des marchandises a l entrepot. Le stock diminue automatiquement pour les produits du catalogue.
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {list.slice().reverse().map(function(r) {
+          return (
+            <div key={r.id} onClick={function() { setSel(r); }} style={{ background: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px #00000010", borderLeft: "4px solid #1e3a8a", cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: "#1e3a8a" }}>{r.bon}</div>
+                <Badge status={r.status} />
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>👤 {r.clientNom}</div>
+              {r.clientChantier && <div style={{ fontSize: 12, color: "#64748b" }}>🏗️ {r.clientChantier}</div>}
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>📅 {fmtD(r.date)} · {(r.products || []).length} article(s) · {r.createdBy}</div>
+            </div>
+          );
+        })}
+        {list.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}><div style={{ fontSize: 48 }}>📤</div><p>Aucun bon de retrait</p></div>}
+      </div>
+
+      {modal && (
+        <Modal title="Nouveau bon de retrait" onClose={function() { setModal(false); }}>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, color: "#92400e" }}>
+            Client non enregistre ? Pas de probleme — saisissez son nom manuellement.
+          </div>
+          <Inp label="Nom du client *" value={form.clientNom} placeholder="Ex: Jean Dupont" onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { clientNom: e.target.value }); }); }} />
+          <Inp label="Chantier / Reference" value={form.clientChantier} placeholder="Ex: Villa Azur, Ref commande..." onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { clientChantier: e.target.value }); }); }} />
+          <Inp label="Telephone" value={form.clientTel} placeholder="Ex: +377 06 00 00 00" onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { clientTel: e.target.value }); }); }} />
+          <Inp label="Date" type="date" value={form.date} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { date: e.target.value }); }); }} />
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Marchandises retirees *</label>
+            {lines.map(function(l, i) {
+              var selProd = l.productId ? props.products.find(function(p) { return String(p.id) === String(l.productId); }) : null;
+              return (
+                <div key={i} style={{ background: "#f8fafc", borderRadius: 10, padding: "10px 12px", marginBottom: 10, border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", gap: 6, marginBottom: 8, alignItems: "center" }}>
+                    <ProductSearch
+                      products={props.products}
+                      value={l.productId || ""}
+                      onChange={function(v) { setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { productId: v, nomLibre: "" }) : x; }); }); }}
+                      placeholder="Chercher catalogue..."
+                    />
+                    <button onClick={function() { setLines(function(p) { return p.filter(function(_, j) { return j !== i; }); }); }} style={{ background: "#fef2f2", border: "none", color: "#ef4444", borderRadius: 8, cursor: "pointer", padding: "6px 10px", flexShrink: 0 }}>✕</button>
+                  </div>
+                  {!l.productId && (
+                    <input type="text" value={l.nomLibre} placeholder="Ou saisir un nom libre (produit hors catalogue)" onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { nomLibre: v }) : x; }); }); }} style={Object.assign({}, IS, { marginBottom: 8, fontSize: 13 })} />
+                  )}
+                  {selProd && <div style={{ fontSize: 12, color: "#22c55e", marginBottom: 6 }}>✅ {selProd.name} — Stock actuel: {selProd.stock} {selProd.unit}</div>}
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <label style={{ fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>Qte:</label>
+                    <input type="number" min="1" value={l.qty} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { qty: v }) : x; }); }); }} style={Object.assign({}, IS, { width: 80 })} />
+                    <label style={{ fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>Unite:</label>
+                    <select value={l.unite} onChange={function(e) { var v = e.target.value; setLines(function(p) { return p.map(function(x, j) { return j === i ? Object.assign({}, x, { unite: v }) : x; }); }); }} style={Object.assign({}, IS, { flex: 1 })}>
+                      {UNITS.map(function(u) { return <option key={u} value={u}>{u}</option>; })}
+                    </select>
+                  </div>
+                </div>
+              );
+            })}
+            <Btn small outline onClick={function() { setLines(function(p) { return p.concat([{ productId: "", qty: 1, unite: "unite", nomLibre: "" }]); }); }}>+ Ajouter un article</Btn>
+          </div>
+          <Txta label="Notes" value={form.notes} placeholder="Observations, conditions de retrait..." onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { notes: e.target.value }); }); }} />
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Btn outline onClick={function() { setModal(false); }}>Annuler</Btn>
+            <Btn onClick={submit}>Creer le bon</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 function Login(props) {
   var [tab, setTab] = useState("login");
@@ -1864,6 +2643,7 @@ function App() {
   var [deliveries, setDeliveries] = useState(INIT_DELIVERIES);
   var [orders, setOrders] = useState(INIT_ORDERS);
   var [devis, setDevis] = useState(INIT_DEVIS);
+  var [retraits, setRetraits] = useState(INIT_RETRAITS);
   var [toasts, setToasts] = useState([]);
   var [unread, setUnread] = useState(0);
 
@@ -1882,6 +2662,7 @@ function App() {
     deliveries: deliveries, setDeliveries: setDeliveries,
     orders: orders, setOrders: setOrders,
     devis: devis, setDevis: setDevis,
+    retraits: retraits, setRetraits: setRetraits,
     products: products, setProducts: setProducts,
     users: users, setUsers: setUsers,
     user: user, addNotif: addNotif, setUnread: setUnread,
@@ -1899,6 +2680,7 @@ function App() {
           {page === "livraisons" && <Livraisons {...sharedProps} />}
           {page === "devis" && canSeeDevis(user.role) && <Devis {...sharedProps} />}
           {page === "historique" && <Historique {...sharedProps} />}
+          {page === "retraits"   && <Retraits   {...sharedProps} />}
           {page === "stock"      && <Stock {...sharedProps} />}
           {page === "produits"   && <Produits {...sharedProps} />}
           {page === "users" && user.role === "admin" && <Users {...sharedProps} />}
