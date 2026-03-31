@@ -730,7 +730,7 @@ function findCh(chs, cid) { if (!cid) return null; return chs.find(function(c) {
 function totalOf(prods, plist) {
   return (prods || []).reduce(function(s, p) {
     var pr = plist.find(function(x) { return String(x.id) === String(p.productId); });
-    return s + (pr ? pr.price * Number(p.qty) : 0);
+    return s + getLineValue(pr, p.qty, p.unite);
   }, 0);
 }
 function canCreateOrder(role) { return role === "admin" || role === "chef_chantier" || role === "user"; }
@@ -836,11 +836,32 @@ function findProd(plist, pid) {
   var s = String(pid);
   return plist.find(function(x) { return String(x.id) === s; }) || null;
 }
-function buildRows(products, plist) {
-  return (products || []).map(function(p) {
+
+// Calcule le prix unitaire en tenant compte de l unite choisie
+// Si l unite est "palette" et que le produit a unitsPerPalette, multiplier
+function getPriceForUnit(prod, unite) {
+  if (!prod) return 0;
+  var u = (unite || "").toLowerCase().trim();
+  if (u === "palette" && prod.unitsPerPalette > 0) {
+    return Number(prod.price) * Number(prod.unitsPerPalette);
+  }
+  return Number(prod.price);
+}
+
+// Calcule la valeur totale d une ligne en tenant compte de l unite
+function getLineValue(prod, qty, unite) {
+  return getPriceForUnit(prod, unite) * Number(qty || 0);
+}
+function buildRows(products, plist, unites) {
+  return (products || []).map(function(p, i) {
     var pr = findProd(plist, p.productId);
-    var t = pr ? pr.price * Number(p.qty) : 0;
-    return "<tr><td>" + (pr ? pr.name : "Produit #" + p.productId) + "</td><td style='text-align:center'>" + p.qty + " " + (pr ? pr.unit : "") + "</td><td style='text-align:right'>" + (pr ? fmtE(pr.price) : "0,00 EUR") + "</td><td style='text-align:right'>" + fmtE(t) + "</td></tr>";
+    var unite = (unites && unites[i]) ? unites[i] : (p.unite || (pr ? pr.unit : ""));
+    var unitPrice = getPriceForUnit(pr, unite);
+    var t = unitPrice * Number(p.qty);
+    var priceLabel = pr ? (unite && unite.toLowerCase() === "palette" && pr.unitsPerPalette > 0
+      ? fmtE(unitPrice) + "/palette"
+      : fmtE(pr.price) + "/" + (pr.unit || "")) : "0,00 EUR";
+    return "<tr><td>" + (pr ? pr.name : "Produit #" + p.productId) + "</td><td style='text-align:center'>" + p.qty + " " + unite + "</td><td style='text-align:right'>" + priceLabel + "</td><td style='text-align:right'>" + fmtE(t) + "</td></tr>";
   }).join("");
 }
 
@@ -1004,7 +1025,7 @@ function Chantiers(props) {
     var totalLivraisons = cDel.filter(function(d) { return d.status === "livre"; }).reduce(function(s, d) {
       return s + (d.products || []).reduce(function(ss, p) {
         var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
-        return ss + (pr ? pr.price * Number(p.qty) : 0);
+        return ss + getLineValue(pr, p.qty, p.unite);
       }, 0);
     }, 0);
 
@@ -1222,7 +1243,7 @@ function Commandes(props) {
             return (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <div><div style={{ fontWeight: 600, fontSize: 13 }}>{pr ? pr.name : "Produit #" + p.productId}</div><div style={{ fontSize: 12, color: "#64748b" }}>{pr ? pr.unit : ""}</div></div>
-                <div style={{ textAlign: "right" }}><div style={{ fontSize: 13 }}>{p.qty}{pr ? " x " + fmtE(pr.price) : ""}</div><div style={{ fontWeight: 700, color: "#1e3a8a" }}>{pr ? fmtE(pr.price * Number(p.qty)) : "0,00 EUR"}</div></div>
+                <div style={{ textAlign: "right" }}><div style={{ fontSize: 13 }}>{p.qty} {pr ? pr.unit : ""}</div>{canSeePrices(props.user.role) && <div style={{ fontWeight: 700, color: "#1e3a8a" }}>{pr ? fmtE(pr.price * Number(p.qty)) : "0,00 EUR"}</div>}</div>
               </div>
             );
           })}
@@ -1412,7 +1433,15 @@ function Livraisons(props) {
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontWeight: 700, color: "#059669", fontSize: 15 }}>{p.qty} {p.unite || (pr ? pr.unit : "")}</div>
-                  {pr && <div style={{ fontSize: 12, color: "#64748b" }}>{fmtE(pr.price * Number(p.qty))}</div>}
+                  {pr && (
+                    <div>
+                      {p.unite && p.unite.toLowerCase() === "palette" && pr.unitsPerPalette > 0
+                        ? <div style={{ fontSize: 12, color: "#7c3aed" }}>📦 {pr.unitsPerPalette} {pr.unit}/pal × {fmtE(pr.price)}</div>
+                        : <div style={{ fontSize: 12, color: "#64748b" }}>{fmtE(pr.price)}/{pr.unit}</div>
+                      }
+                      <div style={{ fontWeight: 700, color: "#059669", fontSize: 13 }}>{fmtE(getLineValue(pr, p.qty, p.unite))}</div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -1423,7 +1452,7 @@ function Livraisons(props) {
               <span style={{ fontWeight: 800, fontSize: 16, color: "#059669" }}>
                 {fmtE((d.products || []).reduce(function(s, p) {
                   var pr = props.products.find(function(x) { return String(x.id) === String(p.productId); });
-                  return s + (pr ? pr.price * Number(p.qty) : 0);
+                  return s + getLineValue(pr, p.qty, p.unite);
                 }, 0))}
               </span>
             </div>
@@ -2185,10 +2214,10 @@ function Produits(props) {
   function save() {
     if (!form.name) return;
     if (modal === "new") {
-      props.setProducts(function(p) { return p.concat([Object.assign({}, form, { id: uid(), price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) })]); });
+      props.setProducts(function(p) { return p.concat([Object.assign({}, form, { id: uid(), price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), unitsPerPalette: Number(form.unitsPerPalette) || 0 })]); });
       props.addNotif("success", "Produit ajoute", form.name);
     } else {
-      props.setProducts(function(p) { return p.map(function(x) { return x.id === form.id ? Object.assign({}, form, { price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock) }) : x; }); });
+      props.setProducts(function(p) { return p.map(function(x) { return x.id === form.id ? Object.assign({}, form, { price: Number(form.price), stock: Number(form.stock), minStock: Number(form.minStock), unitsPerPalette: Number(form.unitsPerPalette) || 0 }) : x; }); });
     }
     setModal(null);
   }
@@ -2284,6 +2313,14 @@ function Produits(props) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Inp label="Stock initial" type="number" value={form.stock} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { stock: e.target.value }); }); }} />
             <Inp label="Stock minimum" type="number" value={form.minStock} onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { minStock: e.target.value }); }); }} />
+          </div>
+          <div style={{ background: "#eff6ff", borderRadius: 10, padding: "10px 14px", marginBottom: 4 }}>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#1e3a8a", marginBottom: 6 }}>📦 Conditionnement palette (optionnel)</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Inp label="" type="number" min="0" value={form.unitsPerPalette || ""} placeholder="Ex: 48" onChange={function(e) { setForm(function(p) { return Object.assign({}, p, { unitsPerPalette: e.target.value }); }); }} style={{ marginBottom: 0 }} />
+              <span style={{ fontSize: 13, color: "#64748b", whiteSpace: "nowrap" }}>{form.unit || "unites"} par palette</span>
+            </div>
+            {form.unitsPerPalette > 0 && form.price > 0 && <div style={{ fontSize: 12, color: "#1e3a8a", marginTop: 4 }}>Prix palette = {fmtE(Number(form.price) * Number(form.unitsPerPalette))}</div>}
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
             <Btn outline onClick={function() { setModal(null); }}>Annuler</Btn><Btn onClick={save}>Enregistrer</Btn>
